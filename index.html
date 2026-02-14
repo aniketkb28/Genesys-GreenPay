@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<parameter name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CarbonCash – Carbon Footprint Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700;9..144,800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep:    #050e08;
+  --bg-card:    #0b1a0f;
+  --bg-glass:   rgba(14,30,18,0.88);
+  --green-glow: #22c55e;
+  --green-mid:  #16a34a;
+  --green-dark: #14532d;
+  --leaf-light: #4ade80;
+  --leaf-pale:  #86efac;
+  --gold:       #fbbf24;
+  --gold-dark:  #d97706;
+  --red:        #f87171;
+  --orange:     #fb923c;
+  --blue:       #38bdf8;
+  --text-pri:   #e8fced;
+  --text-muted: #6b9a7a;
+  --border:     rgba(34,197,94,0.13);
+  --r:          22px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg-deep);color:var(--text-pri);font-family:'DM Sans',sans-serif;width:100%;height:100%;overflow:hidden;}
+
+/* ── Ambient BG ── */
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 55% 45% at 20% -5%,rgba(22,163,74,.16) 0%,transparent 65%),
+  radial-gradient(ellipse 45% 55% at 80% 105%,rgba(20,83,45,.25) 0%,transparent 60%);
+  pointer-events:none;z-index:0;}
+
+/* ── Carbon particles floating ── */
+.carbon-field{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;}
+.carbon-particle{position:absolute;opacity:0;animation:floatCarbon linear infinite;}
+@keyframes floatCarbon{
+  0%  {transform:translateY(110vh) translateX(0) rotate(0deg) scale(.8);opacity:0;}
+  6%  {opacity:.3;}
+  90% {opacity:.15;}
+  100%{transform:translateY(-15vh) translateX(40px) rotate(380deg) scale(.5);opacity:0;}
+}
+
+/* ── App shell ── */
+.app{position:fixed;inset:0;z-index:2;max-width:430px;margin:0 auto;display:flex;flex-direction:column;box-shadow:0 0 60px rgba(0,0,0,.8);}
+
+/* ── Page system ── */
+.pages{flex:1;min-height:0;position:relative;overflow:hidden;}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding-bottom:12px;
+  opacity:0;transform:translateX(30px);pointer-events:none;-webkit-overflow-scrolling:touch;
+  transition:opacity .35s cubic-bezier(.4,0,.2,1),transform .35s cubic-bezier(.4,0,.2,1);}
+.page.active{opacity:1;transform:translateX(0);pointer-events:all;}
+
+/* ── Header ── */
+.header{padding:16px 24px 0;display:flex;justify-content:space-between;align-items:center;}
+.logo{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;
+  font-size:24px;font-weight:600;color:var(--leaf-light);letter-spacing:-.5px;}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#16a34a,#4ade80);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 18px rgba(74,222,128,.35);animation:logoPulse 3s ease-in-out infinite;}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 18px rgba(74,222,128,.35);}50%{box-shadow:0 0 32px rgba(74,222,128,.6),0 0 60px rgba(74,222,128,.2);}}
+.qr-btn{width:38px;height:38px;border-radius:12px;background:var(--bg-glass);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(10px);position:relative;transition:transform .2s;}
+.qr-btn:hover{transform:scale(1.08);}
+
+/* ── Greeting ── */
+.greeting{padding:18px 24px 0;}
+.greeting .sub{font-size:13px;color:var(--text-muted);margin-bottom:3px;}
+.greeting .name{font-family:'Fraunces',serif;font-size:28px;font-weight:700;
+  background:linear-gradient(90deg,#4ade80,#86efac,#d4a853);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+/* ── Carbon Impact Card ── */
+.impact-card{margin:20px 20px 0;
+  background:linear-gradient(145deg,#0d2016 0%,#0a1c12 50%,#0f2719 100%);
+  border:1px solid rgba(74,222,128,.17);border-radius:28px;padding:24px 26px;
+  position:relative;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 0 1px rgba(74,222,128,.05) inset;}
+.impact-card::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(34,197,94,.11) 0%,transparent 70%);
+  animation:cardGlow 4s ease-in-out infinite;}
+@keyframes cardGlow{0%,100%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.3);}}
+
+.impact-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
+.impact-left{}
+.impact-label{font-size:11px;color:var(--text-muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
+.carbon-amount{font-family:'Fraunces',serif;font-size:48px;font-weight:700;
+  background:linear-gradient(135deg,#f87171,#fb923c);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1;display:flex;align-items:baseline;gap:4px;}
+.carbon-amount .unit{font-size:20px;color:var(--text-muted);}
+
+.goal-ring{width:68px;height:68px;position:relative;}
+.goal-ring svg{transform:rotate(-90deg);}
+.goal-ring-label{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;font-size:13px;font-weight:700;
+  color:var(--leaf-light);line-height:1;}
+.goal-ring-label small{font-size:9px;color:var(--text-muted);font-weight:400;}
+
+.goal-info{background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);
+  border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px;}
+.goal-icon{font-size:24px;filter:drop-shadow(0 0 8px rgba(251,146,60,.4));}
+.goal-text{flex:1;}
+.goal-text .main{font-size:14px;font-weight:600;color:var(--text-pri);margin-bottom:2px;}
+.goal-text .sub{font-size:11px;color:var(--text-muted);}
+
+/* ── Quick actions ── */
+.quick-actions{padding:12px 20px;display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;}
+.quick-actions::-webkit-scrollbar{display:none;}
+.q-btn{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;
+  padding:12px 18px;display:flex;align-items:center;gap:8px;
+  cursor:pointer;white-space:nowrap;transition:all .2s;position:relative;overflow:hidden;}
+.q-btn:hover{transform:translateY(-2px);border-color:rgba(74,222,128,.3);
+  box-shadow:0 8px 20px rgba(0,0,0,.4);}
+.q-btn-icon{font-size:18px;}
+.q-btn-text{font-size:13px;font-weight:500;color:var(--text-pri);}
+
+/* ── Sections ── */
+.section-title{padding:24px 24px 12px;font-size:12px;text-transform:uppercase;
+  letter-spacing:1.2px;color:var(--text-muted);font-weight:500;}
+
+/* ── Transaction items ── */
+.txn-list{padding:0 20px;}
+.txn-item{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px;
+  cursor:pointer;position:relative;overflow:hidden;transition:all .2s;}
+.txn-item:hover{border-color:rgba(74,222,128,.25);box-shadow:0 6px 20px rgba(0,0,0,.3);}
+.txn-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;
+  justify-content:center;font-size:22px;flex-shrink:0;}
+.txn-icon.high{background:linear-gradient(135deg,rgba(248,113,113,.15),rgba(251,146,60,.15));
+  border:1px solid rgba(248,113,113,.25);}
+.txn-icon.medium{background:linear-gradient(135deg,rgba(251,191,36,.15),rgba(251,146,60,.12));
+  border:1px solid rgba(251,191,36,.25);}
+.txn-icon.low{background:linear-gradient(135deg,rgba(74,222,128,.15),rgba(34,197,94,.12));
+  border:1px solid rgba(74,222,128,.25);}
+.txn-info{flex:1;min-width:0;}
+.txn-name{font-size:15px;font-weight:600;color:var(--text-pri);margin-bottom:3px;}
+.txn-details{font-size:12px;color:var(--text-muted);}
+.txn-right{text-align:right;}
+.txn-carbon{font-size:15px;font-weight:700;margin-bottom:3px;}
+.txn-carbon.high{color:var(--red);}
+.txn-carbon.medium{color:var(--gold);}
+.txn-carbon.low{color:var(--leaf-light);}
+.txn-amount{font-size:11px;color:var(--text-muted);}
+
+/* ── Notification Toast ── */
+.toast-container{position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  width:calc(100% - 40px);max-width:390px;z-index:1000;pointer-events:none;}
+.toast{background:linear-gradient(145deg,#0d2016,#0f2719);
+  border:1.5px solid rgba(251,146,60,.4);border-radius:22px;
+  padding:18px 20px;opacity:0;transform:translateY(-30px) scale(.92);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 20px 50px rgba(0,0,0,.7),0 0 0 1px rgba(251,146,60,.1) inset;
+  backdrop-filter:blur(20px);pointer-events:all;}
+.toast.show{opacity:1;transform:translateY(0) scale(1);}
+.toast-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.toast-icon{font-size:28px;filter:drop-shadow(0 0 10px rgba(251,146,60,.5));}
+.toast-title{font-size:15px;font-weight:700;color:var(--text-pri);}
+.toast-body{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:12px;}
+.toast-highlight{color:var(--orange);font-weight:600;}
+.toast-goal{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);
+  border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
+.toast-goal-icon{font-size:20px;}
+.toast-goal-text{flex:1;font-size:12px;font-weight:600;color:var(--leaf-light);}
+
+/* ── Bottom nav ── */
+.bottom-nav{
+  background:rgba(5,14,8,.94);backdrop-filter:blur(24px);border-top:1px solid var(--border);
+  display:flex;justify-content:space-around;align-items:center;
+  padding:10px 4px 20px;flex-shrink:0;z-index:50;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;padding:6px 14px;border-radius:14px;transition:background .2s;border:none;background:none;}
+.nav-item.active{background:rgba(34,197,94,.1);}
+.nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);}
+.nav-item.active .nav-icon{color:var(--leaf-light);}
+.nav-label{font-size:10px;color:var(--text-muted);font-weight:500;}
+.nav-item.active .nav-label{color:var(--leaf-light);}
+
+/* ── Weekly Goal Card ── */
+.weekly-card{margin:0 20px 16px;background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
+.weekly-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
+  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
+.weekly-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.weekly-title{font-size:14px;font-weight:600;color:var(--text-pri);}
+.weekly-badge{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);
+  border-radius:8px;padding:4px 10px;font-size:11px;color:var(--leaf-light);font-weight:600;}
+.weekly-progress{position:relative;height:12px;background:rgba(255,255,255,.03);
+  border-radius:8px;overflow:hidden;margin-bottom:12px;}
+.weekly-progress-bar{height:100%;background:linear-gradient(90deg,#f87171,#fb923c,#fbbf24);
+  border-radius:8px;transition:width .6s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;}
+.weekly-progress-bar::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);
+  animation:shimmerBar 2s linear infinite;}
+@keyframes shimmerBar{to{transform:translateX(100%);}}
+.weekly-stats{display:flex;justify-content:space-between;align-items:center;}
+.weekly-stat .val{font-size:18px;font-weight:700;color:var(--text-pri);}
+.weekly-stat .lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;}
+.weekly-stat.current .val{color:var(--orange);}
+.weekly-stat.goal .val{color:var(--leaf-light);}
+
+/* ── Modal for transaction details ── */
+.modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal.open{opacity:1;pointer-events:all;}
+.modal-sheet{background:linear-gradient(145deg,#0d2016,#0a1c12);
+  border-radius:28px 28px 0 0;width:100%;max-width:430px;margin:0 auto;
+  max-height:85vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+  border:1px solid rgba(74,222,128,.15);box-shadow:0 -10px 60px rgba(0,0,0,.8);}
+.modal.open .modal-sheet{transform:translateY(0);}
+.modal-handle{width:40px;height:4px;background:rgba(255,255,255,.15);
+  border-radius:2px;margin:12px auto 20px;}
+.modal-content{padding:0 24px 32px;}
+.modal-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.modal-icon-big{width:64px;height:64px;border-radius:18px;display:flex;
+  align-items:center;justify-content:center;font-size:32px;flex-shrink:0;}
+.modal-icon-big.high{background:linear-gradient(135deg,rgba(248,113,113,.2),rgba(251,146,60,.2));
+  border:1.5px solid rgba(248,113,113,.35);}
+.modal-info h3{font-family:'Fraunces',serif;font-size:22px;font-weight:700;
+  color:var(--text-pri);margin-bottom:4px;}
+.modal-info .cat{font-size:12px;color:var(--text-muted);}
+.modal-divider{height:1px;background:var(--border);margin:20px 0;}
+.modal-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.modal-row .label{font-size:13px;color:var(--text-muted);}
+.modal-row .value{font-size:15px;font-weight:600;color:var(--text-pri);}
+.modal-row .value.carbon{color:var(--orange);font-size:18px;}
+.carbon-breakdown{background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.15);
+  border-radius:16px;padding:16px;margin-bottom:20px;}
+.breakdown-title{font-size:12px;color:var(--text-muted);text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:12px;}
+.breakdown-item{display:flex;justify-content:space-between;margin-bottom:8px;}
+.breakdown-item:last-child{margin-bottom:0;}
+.breakdown-item .name{font-size:13px;color:var(--text-pri);}
+.breakdown-item .val{font-size:13px;font-weight:600;color:var(--orange);}
+.tip-box{background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);
+  border-radius:16px;padding:16px;display:flex;gap:12px;}
+.tip-icon{font-size:24px;flex-shrink:0;}
+.tip-text{font-size:13px;color:var(--text-muted);line-height:1.5;}
+.tip-text strong{color:var(--leaf-light);}
+.modal-close{width:100%;background:linear-gradient(135deg,#16a34a,#22c55e);
+  border:none;border-radius:16px;padding:16px;font-size:15px;font-weight:600;
+  color:var(--text-pri);cursor:pointer;margin-top:20px;
+  box-shadow:0 6px 20px rgba(34,197,94,.25);transition:transform .2s;}
+.modal-close:hover{transform:translateY(-2px);}
+
+/* ── Responsive ── */
+@media (max-width: 380px) {
+  .carbon-amount{font-size:40px;}
+  .goal-ring{width:60px;height:60px;}
+}
+
+/* ══════════════════════════════════════
+   TRANSACTIONS PAGE STYLES
+══════════════════════════════════════ */
+.filter-tabs{display:flex;gap:8px;padding:12px 20px;overflow-x:auto;scrollbar-width:none;}
+.filter-tabs::-webkit-scrollbar{display:none;}
+.filter-tab{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;
+  padding:8px 16px;font-size:13px;font-weight:500;color:var(--text-muted);
+  cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+.filter-tab.active{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.3);
+  color:var(--leaf-light);}
+.filter-tab:hover{border-color:rgba(74,222,128,.2);}
+
+/* ══════════════════════════════════════
+   INSIGHTS PAGE STYLES
+══════════════════════════════════════ */
+.insight-card{margin:20px 20px 0;background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
+.insight-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
+  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
+.insight-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.insight-title{font-size:14px;font-weight:600;color:var(--text-pri);}
+.insight-value{font-family:'Fraunces',serif;font-size:28px;font-weight:700;
+  background:linear-gradient(135deg,#f87171,#fb923c);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.insight-chart{display:flex;gap:12px;align-items:flex-end;height:140px;}
+.chart-bar{flex:1;background:rgba(255,255,255,.03);border-radius:8px;
+  display:flex;align-items:flex-end;justify-content:center;padding:8px;
+  position:relative;transition:all .3s;cursor:pointer;}
+.chart-bar:hover{background:rgba(74,222,128,.08);}
+.chart-bar.active{background:linear-gradient(180deg,rgba(248,113,113,.15),rgba(251,146,60,.1));}
+.chart-bar span{font-size:10px;color:var(--text-muted);text-align:center;line-height:1.3;}
+
+.category-list{padding:0 20px;}
+.category-item{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px;}
+.cat-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;
+  justify-content:center;font-size:22px;flex-shrink:0;
+  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);}
+.cat-info{flex:1;min-width:0;}
+.cat-name{font-size:14px;font-weight:600;color:var(--text-pri);margin-bottom:6px;}
+.cat-bar{height:6px;background:rgba(255,255,255,.03);border-radius:4px;overflow:hidden;}
+.cat-bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.cat-value{text-align:right;}
+.cat-carbon{font-size:15px;font-weight:700;color:var(--text-pri);margin-bottom:2px;}
+.cat-percent{font-size:11px;color:var(--text-muted);}
+
+.comparison-card{margin:0 20px 16px;background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
+.comparison-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
+  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
+.comp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.comp-title{font-size:14px;font-weight:600;color:var(--text-pri);}
+.comp-badge{padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;}
+.comp-badge.good{background:rgba(74,222,128,.15);color:var(--leaf-light);
+  border:1px solid rgba(74,222,128,.3);}
+.comp-bars{margin-bottom:16px;}
+.comp-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.comp-bar-row:last-child{margin-bottom:0;}
+.comp-label{width:60px;font-size:13px;color:var(--text-muted);}
+.comp-bar{flex:1;height:24px;background:rgba(255,255,255,.03);border-radius:8px;overflow:hidden;}
+.comp-bar-fill{height:100%;border-radius:8px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.comp-bar-fill.yours{background:linear-gradient(90deg,#22c55e,#4ade80);}
+.comp-bar-fill.avg{background:linear-gradient(90deg,#fb923c,#fbbf24);}
+.comp-val{width:60px;text-align:right;font-size:13px;font-weight:600;color:var(--text-pri);}
+.comp-tip{font-size:12px;color:var(--text-muted);line-height:1.5;
+  background:rgba(74,222,128,.06);border-radius:10px;padding:10px;}
+
+.achievement-grid{padding:0 20px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.achievement-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px;text-align:center;position:relative;overflow:hidden;transition:all .2s;}
+.achievement-card.earned{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.04);}
+.achievement-card:not(.earned){opacity:.5;}
+.achievement-card::before{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;
+  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
+.ach-icon{font-size:36px;margin-bottom:8px;}
+.ach-name{font-size:13px;font-weight:600;color:var(--text-pri);margin-bottom:4px;}
+.ach-desc{font-size:10px;color:var(--text-muted);}
+
+/* ══════════════════════════════════════
+   PROFILE PAGE STYLES
+══════════════════════════════════════ */
+.profile-header{margin:20px 20px 0;background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--r);padding:20px;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden;}
+.profile-header::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
+  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
+.profile-avatar{width:64px;height:64px;border-radius:18px;
+  background:linear-gradient(135deg,#16a34a,#4ade80);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 0 20px rgba(74,222,128,.3);}
+.profile-avatar svg{color:var(--text-pri);}
+.profile-info{flex:1;min-width:0;}
+.profile-name{font-size:18px;font-weight:700;color:var(--text-pri);margin-bottom:4px;}
+.profile-email{font-size:12px;color:var(--text-muted);}
+.edit-btn{padding:8px 16px;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);
+  border-radius:10px;font-size:13px;font-weight:600;color:var(--leaf-light);
+  cursor:pointer;transition:all .2s;}
+.edit-btn:hover{background:rgba(74,222,128,.15);transform:translateY(-1px);}
+
+.profile-stats{padding:0 20px;margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.stat-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px;text-align:center;position:relative;overflow:hidden;}
+.stat-box::before{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;
+  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
+.stat-icon{font-size:28px;margin-bottom:8px;}
+.stat-num{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--text-pri);margin-bottom:4px;}
+.stat-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;}
+
+.menu-list{padding:0 20px;}
+.menu-item{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;
+  cursor:pointer;position:relative;overflow:hidden;transition:all .2s;}
+.menu-item:hover{border-color:rgba(74,222,128,.25);box-shadow:0 4px 16px rgba(0,0,0,.25);}
+.menu-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:20px;flex-shrink:0;
+  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);}
+.menu-text{flex:1;min-width:0;}
+.menu-title{font-size:14px;font-weight:600;color:var(--text-pri);margin-bottom:2px;}
+.menu-subtitle{font-size:11px;color:var(--text-muted);}
+.menu-arrow{font-size:24px;color:var(--text-muted);font-weight:300;}
+
+.logout-btn{width:calc(100% - 40px);margin:20px 20px 0;padding:16px;
+  background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);
+  border-radius:16px;font-size:15px;font-weight:600;color:#f87171;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .2s;}
+.logout-btn:hover{background:rgba(248,113,113,.15);transform:translateY(-1px);}
+</style>
+</head>
+<body>
+
+<!-- Carbon particles background -->
+<div class="carbon-field" id="carbonField"></div>
+
+<div class="app">
+  <div class="pages">
+    <!-- ══════════════════════════════════════
+         HOME PAGE
+    ══════════════════════════════════════ -->
+    <div class="page active" id="homePage">
+      <!-- Header -->
+      <div class="header">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          CarbonCash
+        </div>
+        <button class="qr-btn" id="qrBtn" title="Scan QR Code">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2zM17 17h2v2h-2zM19 19h2v2h-2z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Greeting -->
+      <div class="greeting">
+        <div class="sub">Track Your Impact</div>
+        <div class="name">Carbon Footprint</div>
+      </div>
+
+      <!-- Carbon Impact Card -->
+      <div class="impact-card">
+        <div class="impact-header">
+          <div class="impact-left">
+            <div class="impact-label">This Week's Carbon</div>
+            <div class="carbon-amount">
+              <span id="weekCarbon">6.4</span>
+              <span class="unit">kg CO₂</span>
+            </div>
+          </div>
+          <div class="goal-ring">
+            <svg width="68" height="68" viewBox="0 0 68 68">
+              <circle cx="34" cy="34" r="30" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="6"/>
+              <circle id="goalCircle" cx="34" cy="34" r="30" fill="none" stroke="url(#goalGradient)" stroke-width="6" 
+                stroke-dasharray="188.5" stroke-dashoffset="47" stroke-linecap="round"/>
+              <defs>
+                <linearGradient id="goalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#f87171"/>
+                  <stop offset="50%" style="stop-color:#fb923c"/>
+                  <stop offset="100%" style="stop-color:#fbbf24"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="goal-ring-label">
+              <span>80%</span>
+              <small>of goal</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="goal-info">
+          <div class="goal-icon">🎯</div>
+          <div class="goal-text">
+            <div class="main">2.0 kg away from your Green Goal</div>
+            <div class="sub">Weekly target: 8kg CO₂</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="q-btn" id="offsetBtn">
+          <div class="q-btn-icon">🌱</div>
+          <div class="q-btn-text">Offset Carbon</div>
+        </button>
+        <button class="q-btn" id="insightsBtn">
+          <div class="q-btn-icon">📊</div>
+          <div class="q-btn-text">View Insights</div>
+        </button>
+        <button class="q-btn" id="goalsBtn">
+          <div class="q-btn-icon">🎯</div>
+          <div class="q-btn-text">Set Goals</div>
+        </button>
+        <button class="q-btn" id="tipsBtn">
+          <div class="q-btn-icon">💡</div>
+          <div class="q-btn-text">Eco Tips</div>
+        </button>
+      </div>
+
+      <!-- Weekly Goal Progress -->
+      <div class="weekly-card">
+        <div class="weekly-header">
+          <div class="weekly-title">Weekly Progress</div>
+          <div class="weekly-badge">On Track</div>
+        </div>
+        <div class="weekly-progress">
+          <div class="weekly-progress-bar" style="width: 80%;"></div>
+        </div>
+        <div class="weekly-stats">
+          <div class="weekly-stat current">
+            <div class="val">6.4 kg</div>
+            <div class="lbl">Current</div>
+          </div>
+          <div class="weekly-stat goal">
+            <div class="val">8.0 kg</div>
+            <div class="lbl">Goal</div>
+          </div>
+          <div class="weekly-stat">
+            <div class="val">2.0 kg</div>
+            <div class="lbl">Remaining</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="section-title">Recent Transactions</div>
+      <div class="txn-list">
+        <div class="txn-item" data-txn="starbucks">
+          <div class="txn-icon high">☕</div>
+          <div class="txn-info">
+            <div class="txn-name">Starbucks Coffee</div>
+            <div class="txn-details">MCC 5812 · Eating Places · 2 min ago</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon high">0.8 kg</div>
+            <div class="txn-amount">₹450</div>
+          </div>
+        </div>
+
+        <div class="txn-item" data-txn="uber">
+          <div class="txn-icon medium">🚗</div>
+          <div class="txn-info">
+            <div class="txn-name">Uber Ride</div>
+            <div class="txn-details">MCC 4121 · Transportation · 3 hours ago</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon medium">1.2 kg</div>
+            <div class="txn-amount">₹285</div>
+          </div>
+        </div>
+
+        <div class="txn-item" data-txn="bigbasket">
+          <div class="txn-icon low">🛒</div>
+          <div class="txn-info">
+            <div class="txn-name">BigBasket</div>
+            <div class="txn-details">MCC 5411 · Grocery Store · Yesterday</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon low">0.4 kg</div>
+            <div class="txn-amount">₹1,240</div>
+          </div>
+        </div>
+
+        <div class="txn-item" data-txn="zara">
+          <div class="txn-icon high">👕</div>
+          <div class="txn-info">
+            <div class="txn-name">Zara Fashion</div>
+            <div class="txn-details">MCC 5691 · Clothing Store · Yesterday</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon high">2.4 kg</div>
+            <div class="txn-amount">₹3,299</div>
+          </div>
+        </div>
+
+        <div class="txn-item" data-txn="swiggy">
+          <div class="txn-icon medium">🍕</div>
+          <div class="txn-info">
+            <div class="txn-name">Swiggy Delivery</div>
+            <div class="txn-details">MCC 5812 · Food Delivery · 2 days ago</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon medium">1.6 kg</div>
+            <div class="txn-amount">₹680</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 20px;"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         TRANSACTIONS PAGE
+    ══════════════════════════════════════ -->
+    <div class="page" id="transactionsPage">
+      <div class="header">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          CarbonCash
+        </div>
+        <button class="qr-btn" id="qrBtn2" title="Scan QR Code">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2zM17 17h2v2h-2zM19 19h2v2h-2z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="greeting">
+        <div class="sub">All Your Purchases</div>
+        <div class="name">Transactions</div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="high">High Impact</button>
+        <button class="filter-tab" data-filter="medium">Medium</button>
+        <button class="filter-tab" data-filter="low">Low Impact</button>
+      </div>
+
+      <!-- All Transactions List -->
+      <div class="section-title">This Week</div>
+      <div class="txn-list">
+        <div class="txn-item" data-txn="starbucks" data-impact="high">
+          <div class="txn-icon high">☕</div>
+          <div class="txn-info">
+            <div class="txn-name">Starbucks Coffee</div>
+            <div class="txn-details">MCC 5812 · Feb 14, 2:34 PM</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon high">0.8 kg</div>
+            <div class="txn-amount">₹450</div>
+          </div>
+        </div>
+
+        <div class="txn-item" data-txn="uber" data-impact="medium">
+          <div class="txn-icon medium">🚗</div>
+          <div class="txn-info">
+            <div class="txn-name">Uber Ride</div>
+            <div class="txn-details">MCC 4121 · Feb 14, 11:15 AM</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon medium">1.2 kg</div>
+            <div class="txn-amount">₹285</div>
+          </div>
+        </div>
+
+        <div class="txn-item" data-txn="bigbasket" data-impact="low">
+          <div class="txn-icon low">🛒</div>
+          <div class="txn-info">
+            <div class="txn-name">BigBasket</div>
+            <div class="txn-details">MCC 5411 · Feb 13, 6:22 PM</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon low">0.4 kg</div>
+            <div class="txn-amount">₹1,240</div>
+          </div>
+        </div>
+
+        <div class="txn-item" data-txn="zara" data-impact="high">
+          <div class="txn-icon high">👕</div>
+          <div class="txn-info">
+            <div class="txn-name">Zara Fashion</div>
+            <div class="txn-details">MCC 5691 · Feb 13, 3:45 PM</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon high">2.4 kg</div>
+            <div class="txn-amount">₹3,299</div>
+          </div>
+        </div>
+
+        <div class="txn-item" data-txn="swiggy" data-impact="medium">
+          <div class="txn-icon medium">🍕</div>
+          <div class="txn-info">
+            <div class="txn-name">Swiggy Delivery</div>
+            <div class="txn-details">MCC 5812 · Feb 12, 8:30 PM</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon medium">1.6 kg</div>
+            <div class="txn-amount">₹680</div>
+          </div>
+        </div>
+
+        <div class="txn-item" data-impact="low">
+          <div class="txn-icon low">📚</div>
+          <div class="txn-info">
+            <div class="txn-name">Amazon Books</div>
+            <div class="txn-details">MCC 5942 · Feb 11, 4:20 PM</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon low">0.3 kg</div>
+            <div class="txn-amount">₹899</div>
+          </div>
+        </div>
+
+        <div class="txn-item" data-impact="medium">
+          <div class="txn-icon medium">✈️</div>
+          <div class="txn-info">
+            <div class="txn-name">IndiGo Airlines</div>
+            <div class="txn-details">MCC 3000 · Feb 10, 9:00 AM</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon medium">45.0 kg</div>
+            <div class="txn-amount">₹8,450</div>
+          </div>
+        </div>
+
+        <div class="txn-item" data-impact="low">
+          <div class="txn-icon low">💊</div>
+          <div class="txn-info">
+            <div class="txn-name">Apollo Pharmacy</div>
+            <div class="txn-details">MCC 5912 · Feb 9, 7:15 PM</div>
+          </div>
+          <div class="txn-right">
+            <div class="txn-carbon low">0.2 kg</div>
+            <div class="txn-amount">₹340</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 20px;"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         INSIGHTS PAGE
+    ══════════════════════════════════════ -->
+    <div class="page" id="insightsPage">
+      <div class="header">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          CarbonCash
+        </div>
+        <button class="qr-btn" id="qrBtn3" title="Scan QR Code">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2zM17 17h2v2h-2zM19 19h2v2h-2z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="greeting">
+        <div class="sub">Environmental Analytics</div>
+        <div class="name">Insights</div>
+      </div>
+
+      <!-- Monthly Overview -->
+      <div class="insight-card">
+        <div class="insight-header">
+          <div class="insight-title">Monthly Carbon Footprint</div>
+          <div class="insight-value">24.8 kg CO₂</div>
+        </div>
+        <div class="insight-chart">
+          <div class="chart-bar" style="height: 60%;"><span>Week 1<br>5.2kg</span></div>
+          <div class="chart-bar" style="height: 75%;"><span>Week 2<br>7.1kg</span></div>
+          <div class="chart-bar" style="height: 85%;"><span>Week 3<br>6.4kg</span></div>
+          <div class="chart-bar active" style="height: 95%;"><span>Week 4<br>6.1kg</span></div>
+        </div>
+      </div>
+
+      <!-- Category Breakdown -->
+      <div class="section-title">Carbon by Category</div>
+      <div class="category-list">
+        <div class="category-item">
+          <div class="cat-icon">🚗</div>
+          <div class="cat-info">
+            <div class="cat-name">Transportation</div>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width: 75%; background: linear-gradient(90deg, #f87171, #fb923c);"></div>
+            </div>
+          </div>
+          <div class="cat-value">
+            <div class="cat-carbon">52.4 kg</div>
+            <div class="cat-percent">45%</div>
+          </div>
+        </div>
+
+        <div class="category-item">
+          <div class="cat-icon">🍕</div>
+          <div class="cat-info">
+            <div class="cat-name">Food & Dining</div>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width: 60%; background: linear-gradient(90deg, #fb923c, #fbbf24);"></div>
+            </div>
+          </div>
+          <div class="cat-value">
+            <div class="cat-carbon">38.2 kg</div>
+            <div class="cat-percent">33%</div>
+          </div>
+        </div>
+
+        <div class="category-item">
+          <div class="cat-icon">👕</div>
+          <div class="cat-info">
+            <div class="cat-name">Shopping</div>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width: 40%; background: linear-gradient(90deg, #fbbf24, #4ade80);"></div>
+            </div>
+          </div>
+          <div class="cat-value">
+            <div class="cat-carbon">18.6 kg</div>
+            <div class="cat-percent">16%</div>
+          </div>
+        </div>
+
+        <div class="category-item">
+          <div class="cat-icon">💡</div>
+          <div class="cat-info">
+            <div class="cat-name">Utilities</div>
+            <div class="cat-bar">
+              <div class="cat-bar-fill" style="width: 20%; background: linear-gradient(90deg, #4ade80, #22c55e);"></div>
+            </div>
+          </div>
+          <div class="cat-value">
+            <div class="cat-carbon">6.8 kg</div>
+            <div class="cat-percent">6%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Card -->
+      <div class="section-title">Your Impact</div>
+      <div class="comparison-card">
+        <div class="comp-header">
+          <div class="comp-title">vs Average User</div>
+          <div class="comp-badge good">28% Better</div>
+        </div>
+        <div class="comp-bars">
+          <div class="comp-bar-row">
+            <div class="comp-label">You</div>
+            <div class="comp-bar">
+              <div class="comp-bar-fill yours" style="width: 72%;"></div>
+            </div>
+            <div class="comp-val">24.8 kg</div>
+          </div>
+          <div class="comp-bar-row">
+            <div class="comp-label">Average</div>
+            <div class="comp-bar">
+              <div class="comp-bar-fill avg" style="width: 100%;"></div>
+            </div>
+            <div class="comp-val">34.5 kg</div>
+          </div>
+        </div>
+        <div class="comp-tip">
+          🌟 You're doing great! Your carbon footprint is significantly lower than average.
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="section-title">Achievements</div>
+      <div class="achievement-grid">
+        <div class="achievement-card earned">
+          <div class="ach-icon">🌱</div>
+          <div class="ach-name">Eco Starter</div>
+          <div class="ach-desc">First week tracked</div>
+        </div>
+        <div class="achievement-card earned">
+          <div class="ach-icon">🎯</div>
+          <div class="ach-name">Goal Getter</div>
+          <div class="ach-desc">Met weekly goal</div>
+        </div>
+        <div class="achievement-card earned">
+          <div class="ach-icon">🚴</div>
+          <div class="ach-name">Green Commuter</div>
+          <div class="ach-desc">5 eco-friendly trips</div>
+        </div>
+        <div class="achievement-card">
+          <div class="ach-icon">🌍</div>
+          <div class="ach-name">Planet Hero</div>
+          <div class="ach-desc">Offset 100kg CO₂</div>
+        </div>
+      </div>
+
+      <div style="height: 20px;"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PROFILE PAGE
+    ══════════════════════════════════════ -->
+    <div class="page" id="profilePage">
+      <div class="header">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          CarbonCash
+        </div>
+        <button class="qr-btn" id="qrBtn4" title="Scan QR Code">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2zM17 17h2v2h-2zM19 19h2v2h-2z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="greeting">
+        <div class="sub">Your Account</div>
+        <div class="name">Profile</div>
+      </div>
+
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+          </svg>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">Priya Sharma</div>
+          <div class="profile-email">priya.sharma@email.com</div>
+        </div>
+        <button class="edit-btn">Edit</button>
+      </div>
+
+      <!-- Stats Overview -->
+      <div class="profile-stats">
+        <div class="stat-box">
+          <div class="stat-icon">🌱</div>
+          <div class="stat-num">124.8</div>
+          <div class="stat-label">Total CO₂ (kg)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-num">12</div>
+          <div class="stat-label">Goals Met</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-num">8</div>
+          <div class="stat-label">Achievements</div>
+        </div>
+      </div>
+
+      <!-- Menu Items -->
+      <div class="section-title">Settings</div>
+      <div class="menu-list">
+        <div class="menu-item">
+          <div class="menu-icon">🎯</div>
+          <div class="menu-text">
+            <div class="menu-title">Carbon Goals</div>
+            <div class="menu-subtitle">Set your weekly targets</div>
+          </div>
+          <div class="menu-arrow">›</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-icon">🔔</div>
+          <div class="menu-text">
+            <div class="menu-title">Notifications</div>
+            <div class="menu-subtitle">Manage alerts & reminders</div>
+          </div>
+          <div class="menu-arrow">›</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-icon">🔗</div>
+          <div class="menu-text">
+            <div class="menu-title">Linked Accounts</div>
+            <div class="menu-subtitle">3 cards connected</div>
+          </div>
+          <div class="menu-arrow">›</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-icon">🌍</div>
+          <div class="menu-text">
+            <div class="menu-title">Offset Programs</div>
+            <div class="menu-subtitle">Plant trees & support projects</div>
+          </div>
+          <div class="menu-arrow">›</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-icon">📊</div>
+          <div class="menu-text">
+            <div class="menu-title">Export Data</div>
+            <div class="menu-subtitle">Download your carbon history</div>
+          </div>
+          <div class="menu-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="section-title">Support</div>
+      <div class="menu-list">
+        <div class="menu-item">
+          <div class="menu-icon">❓</div>
+          <div class="menu-text">
+            <div class="menu-title">Help & FAQ</div>
+            <div class="menu-subtitle">Get answers to common questions</div>
+          </div>
+          <div class="menu-arrow">›</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-icon">💬</div>
+          <div class="menu-text">
+            <div class="menu-title">Contact Support</div>
+            <div class="menu-subtitle">We're here to help</div>
+          </div>
+          <div class="menu-arrow">›</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-icon">⭐</div>
+          <div class="menu-text">
+            <div class="menu-title">Rate CarbonCash</div>
+            <div class="menu-subtitle">Share your feedback</div>
+          </div>
+          <div class="menu-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="section-title">Legal</div>
+      <div class="menu-list">
+        <div class="menu-item">
+          <div class="menu-icon">📄</div>
+          <div class="menu-text">
+            <div class="menu-title">Privacy Policy</div>
+          </div>
+          <div class="menu-arrow">›</div>
+        </div>
+
+        <div class="menu-item">
+          <div class="menu-icon">📋</div>
+          <div class="menu-text">
+            <div class="menu-title">Terms of Service</div>
+          </div>
+          <div class="menu-arrow">›</div>
+        </div>
+      </div>
+
+      <button class="logout-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+        Log Out
+      </button>
+
+      <div style="height: 20px;"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <button class="nav-item active">
+      <div class="nav-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+      </div>
+      <div class="nav-label">Home</div>
+    </button>
+    <button class="nav-item">
+      <div class="nav-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+        </svg>
+      </div>
+      <div class="nav-label">Transactions</div>
+    </button>
+    <button class="nav-item">
+      <div class="nav-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+        </svg>
+      </div>
+      <div class="nav-label">Insights</div>
+    </button>
+    <button class="nav-item">
+      <div class="nav-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+        </svg>
+      </div>
+      <div class="nav-label">Profile</div>
+    </button>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container">
+  <div class="toast" id="carbonToast">
+    <div class="toast-header">
+      <div class="toast-icon">⚠️</div>
+      <div class="toast-title">Carbon Alert!</div>
+    </div>
+    <div class="toast-body">
+      That coffee just cost the planet <span class="toast-highlight">0.8kg of CO₂</span>. 
+      Every cup has an environmental impact from bean production to brewing.
+    </div>
+    <div class="toast-goal">
+      <div class="toast-goal-icon">🎯</div>
+      <div class="toast-goal-text">You are 2.0kg away from your weekly 'Green Goal'!</div>
+    </div>
+  </div>
+</div>
+
+<!-- Transaction Detail Modal -->
+<div class="modal" id="txnModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-icon-big high">
+          <span id="modalEmoji">☕</span>
+        </div>
+        <div class="modal-info">
+          <h3 id="modalName">Starbucks Coffee</h3>
+          <div class="cat" id="modalCat">Eating Places · MCC 5812</div>
+        </div>
+      </div>
+
+      <div class="modal-row">
+        <div class="label">Transaction Amount</div>
+        <div class="value" id="modalAmount">₹450</div>
+      </div>
+      <div class="modal-row">
+        <div class="label">Carbon Footprint</div>
+        <div class="value carbon" id="modalCarbon">0.8 kg CO₂</div>
+      </div>
+      <div class="modal-row">
+        <div class="label">Transaction Date</div>
+        <div class="value" id="modalDate">Feb 14, 2026 · 2:34 PM</div>
+      </div>
+
+      <div class="modal-divider"></div>
+
+      <div class="carbon-breakdown">
+        <div class="breakdown-title">Carbon Breakdown</div>
+        <div class="breakdown-item">
+          <div class="name">Coffee Bean Production</div>
+          <div class="val">0.35 kg</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="name">Transportation & Supply Chain</div>
+          <div class="val">0.20 kg</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="name">Brewing & Energy</div>
+          <div class="val">0.15 kg</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="name">Cup & Packaging</div>
+          <div class="val">0.10 kg</div>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <div class="tip-text">
+          <strong>Eco Tip:</strong> Bring your own reusable cup to save ~0.10kg CO₂ per visit. 
+          Choosing plant-based milk can reduce emissions by up to 30%!
+        </div>
+      </div>
+
+      <button class="modal-close" id="modalCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// CARBON PARTICLES ANIMATION
+// ══════════════════════════════════════
+const carbonField = document.getElementById('carbonField');
+const carbonSymbols = ['CO₂', '🌿', '♻️', '🌍'];
+for(let i = 0; i < 15; i++) {
+  const particle = document.createElement('div');
+  particle.className = 'carbon-particle';
+  particle.textContent = carbonSymbols[Math.floor(Math.random() * carbonSymbols.length)];
+  particle.style.left = Math.random() * 100 + '%';
+  particle.style.fontSize = (Math.random() * 12 + 16) + 'px';
+  particle.style.animationDuration = (Math.random() * 20 + 25) + 's';
+  particle.style.animationDelay = Math.random() * 15 + 's';
+  particle.style.color = 'rgba(74,222,128,0.2)';
+  carbonField.appendChild(particle);
+}
+
+// ══════════════════════════════════════
+// SHOW TOAST NOTIFICATION ON LOAD
+// ══════════════════════════════════════
+const toast = document.getElementById('carbonToast');
+setTimeout(() => {
+  toast.classList.add('show');
+}, 1000);
+
+// Auto-hide after 6 seconds
+setTimeout(() => {
+  toast.classList.remove('show');
+}, 7000);
+
+// Click to dismiss
+toast.addEventListener('click', () => {
+  toast.classList.remove('show');
+});
+
+// ══════════════════════════════════════
+// QR SCAN BUTTON
+// ══════════════════════════════════════
+document.getElementById('qrBtn').addEventListener('click', function() {
+  // Simulate QR scanning - show toast notification
+  this.style.transform = 'scale(0.9)';
+  setTimeout(() => {
+    this.style.transform = '';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 6000);
+  }, 200);
+});
+
+// ══════════════════════════════════════
+// TRANSACTION DETAIL MODAL
+// ══════════════════════════════════════
+const txnData = {
+  starbucks: {
+    emoji: '☕',
+    name: 'Starbucks Coffee',
+    cat: 'Eating Places · MCC 5812',
+    amount: '₹450',
+    carbon: '0.8 kg CO₂',
+    date: 'Feb 14, 2026 · 2:34 PM',
+    breakdown: [
+      { name: 'Coffee Bean Production', val: '0.35 kg' },
+      { name: 'Transportation & Supply Chain', val: '0.20 kg' },
+      { name: 'Brewing & Energy', val: '0.15 kg' },
+      { name: 'Cup & Packaging', val: '0.10 kg' }
+    ],
+    tip: 'Bring your own reusable cup to save ~0.10kg CO₂ per visit. Choosing plant-based milk can reduce emissions by up to 30%!'
+  },
+  uber: {
+    emoji: '🚗',
+    name: 'Uber Ride',
+    cat: 'Transportation · MCC 4121',
+    amount: '₹285',
+    carbon: '1.2 kg CO₂',
+    date: 'Feb 14, 2026 · 11:15 AM',
+    breakdown: [
+      { name: 'Fuel Combustion', val: '0.85 kg' },
+      { name: 'Vehicle Manufacturing Impact', val: '0.20 kg' },
+      { name: 'Infrastructure', val: '0.10 kg' },
+      { name: 'Idle Time Emissions', val: '0.05 kg' }
+    ],
+    tip: 'Consider carpooling with Uber Pool to reduce emissions by 50%. Or try electric vehicle options for 70% lower carbon footprint!'
+  },
+  bigbasket: {
+    emoji: '🛒',
+    name: 'BigBasket',
+    cat: 'Grocery Store · MCC 5411',
+    amount: '₹1,240',
+    carbon: '0.4 kg CO₂',
+    date: 'Feb 13, 2026 · 6:22 PM',
+    breakdown: [
+      { name: 'Product Production', val: '0.15 kg' },
+      { name: 'Delivery & Logistics', val: '0.12 kg' },
+      { name: 'Cold Chain (Refrigeration)', val: '0.08 kg' },
+      { name: 'Packaging Materials', val: '0.05 kg' }
+    ],
+    tip: 'Choose local and seasonal produce to reduce transport emissions. Opt for minimal packaging and reusable bags!'
+  },
+  zara: {
+    emoji: '👕',
+    name: 'Zara Fashion',
+    cat: 'Clothing Store · MCC 5691',
+    amount: '₹3,299',
+    carbon: '2.4 kg CO₂',
+    date: 'Feb 13, 2026 · 3:45 PM',
+    breakdown: [
+      { name: 'Textile Manufacturing', val: '1.40 kg' },
+      { name: 'Dyeing & Processing', val: '0.55 kg' },
+      { name: 'Global Shipping', val: '0.30 kg' },
+      { name: 'Retail Operations', val: '0.15 kg' }
+    ],
+    tip: 'Fast fashion has a huge carbon cost. Choose sustainable brands, buy second-hand, or invest in quality pieces that last longer!'
+  },
+  swiggy: {
+    emoji: '🍕',
+    name: 'Swiggy Delivery',
+    cat: 'Food Delivery · MCC 5812',
+    amount: '₹680',
+    carbon: '1.6 kg CO₂',
+    date: 'Feb 12, 2026 · 8:30 PM',
+    breakdown: [
+      { name: 'Food Production', val: '0.85 kg' },
+      { name: 'Restaurant Cooking', val: '0.35 kg' },
+      { name: 'Delivery Vehicle', val: '0.25 kg' },
+      { name: 'Packaging Waste', val: '0.15 kg' }
+    ],
+    tip: 'Delivery adds extra emissions! Consider picking up food yourself or cooking at home. Choose restaurants with eco-friendly packaging!'
+  }
+};
+
+const modal = document.getElementById('txnModal');
+const modalSheet = modal.querySelector('.modal-sheet');
+
+// Open modal on transaction click
+document.querySelectorAll('.txn-item').forEach(item => {
+  item.addEventListener('click', function() {
+    const txnKey = this.getAttribute('data-txn');
+    const data = txnData[txnKey];
+    
+    if (!data) return;
+    
+    // Populate modal
+    document.getElementById('modalEmoji').textContent = data.emoji;
+    document.getElementById('modalName').textContent = data.name;
+    document.getElementById('modalCat').textContent = data.cat;
+    document.getElementById('modalAmount').textContent = data.amount;
+    document.getElementById('modalCarbon').textContent = data.carbon;
+    document.getElementById('modalDate').textContent = data.date;
+    
+    // Breakdown
+    const breakdownHTML = data.breakdown.map(b => 
+      `<div class="breakdown-item">
+        <div class="name">${b.name}</div>
+        <div class="val">${b.val}</div>
+      </div>`
+    ).join('');
+    document.querySelector('.carbon-breakdown').innerHTML = 
+      `<div class="breakdown-title">Carbon Breakdown</div>${breakdownHTML}`;
+    
+    // Tip
+    document.querySelector('.tip-text').innerHTML = 
+      `<strong>Eco Tip:</strong> ${data.tip}`;
+    
+    // Show modal
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    
+    // Ripple effect
+    const r = document.createElement('span');
+    const rect = this.getBoundingClientRect();
+    r.style.cssText = `position:absolute;border-radius:50%;background:rgba(74,222,128,.15);width:12px;height:12px;left:${event.clientX-rect.left}px;top:${event.clientY-rect.top}px;transform:translate(-50%,-50%) scale(0);animation:rippleAnim .5s ease-out forwards;pointer-events:none;z-index:99`;
+    this.appendChild(r);
+    setTimeout(() => r.remove(), 500);
+  });
+});
+
+// Close modal
+document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+modal.addEventListener('click', function(e) {
+  if (e.target === modal) closeModal();
+});
+
+function closeModal() {
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Swipe down to close
+let touchStartY = 0;
+modalSheet.addEventListener('touchstart', e => {
+  touchStartY = e.touches[0].clientY;
+}, {passive: true});
+modalSheet.addEventListener('touchmove', e => {
+  const dy = e.touches[0].clientY - touchStartY;
+  if (dy > 0) modalSheet.style.transform = `translateY(${dy}px)`;
+}, {passive: true});
+modalSheet.addEventListener('touchend', e => {
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  modalSheet.style.transform = '';
+  if (dy > 80) closeModal();
+}, {passive: true});
+
+// Ripple animation style
+const ripStyle = document.createElement('style');
+ripStyle.textContent = '@keyframes rippleAnim{to{transform:scale(14);opacity:0;}}';
+document.head.appendChild(ripStyle);
+
+// Quick action buttons
+document.getElementById('offsetBtn').addEventListener('click', function() {
+  alert('🌱 Carbon offset feature coming soon! Offset your footprint by planting trees.');
+});
+document.getElementById('insightsBtn').addEventListener('click', function() {
+  navigateToPage('insightsPage');
+});
+document.getElementById('goalsBtn').addEventListener('click', function() {
+  alert('🎯 Set custom carbon goals and track your progress over time.');
+});
+document.getElementById('tipsBtn').addEventListener('click', function() {
+  alert('💡 Get personalized eco-friendly tips based on your spending habits.');
+});
+
+// ══════════════════════════════════════
+// PAGE NAVIGATION SYSTEM
+// ══════════════════════════════════════
+const pages = {
+  home: 'homePage',
+  transactions: 'transactionsPage',
+  insights: 'insightsPage',
+  profile: 'profilePage'
+};
+
+function navigateToPage(pageId) {
+  // Remove active from all pages
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active', 'exit-left');
+    if (p.classList.contains('active')) {
+      p.classList.add('exit-left');
+    }
+  });
+  
+  // Add active to target page
+  setTimeout(() => {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('exit-left'));
+    document.getElementById(pageId).classList.add('active');
+  }, 50);
+  
+  // Update nav active state
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  const navIndex = Object.values(pages).indexOf(pageId);
+  document.querySelectorAll('.nav-item')[navIndex]?.classList.add('active');
+}
+
+// Bottom nav click handlers
+document.querySelectorAll('.nav-item').forEach((item, index) => {
+  item.addEventListener('click', function() {
+    const pageIds = Object.values(pages);
+    navigateToPage(pageIds[index]);
+  });
+});
+
+// QR button handlers for all pages
+document.getElementById('qrBtn').addEventListener('click', showToast);
+document.getElementById('qrBtn2')?.addEventListener('click', showToast);
+document.getElementById('qrBtn3')?.addEventListener('click', showToast);
+document.getElementById('qrBtn4')?.addEventListener('click', showToast);
+
+function showToast() {
+  const btn = event.currentTarget;
+  btn.style.transform = 'scale(0.9)';
+  setTimeout(() => {
+    btn.style.transform = '';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 6000);
+  }, 200);
+}
+
+// ══════════════════════════════════════
+// TRANSACTIONS PAGE - FILTER FUNCTIONALITY
+// ══════════════════════════════════════
+document.querySelectorAll('.filter-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    // Update active tab
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    
+    const filter = this.getAttribute('data-filter');
+    const items = document.querySelectorAll('#transactionsPage .txn-item');
+    
+    items.forEach(item => {
+      if (filter === 'all') {
+        item.style.display = 'flex';
+      } else {
+        const impact = item.getAttribute('data-impact');
+        item.style.display = impact === filter ? 'flex' : 'none';
+      }
+    });
+  });
+});
+
+// ══════════════════════════════════════
+// PROFILE PAGE - MENU INTERACTIONS
+// ══════════════════════════════════════
+document.querySelectorAll('.menu-item').forEach(item => {
+  item.addEventListener('click', function() {
+    const title = this.querySelector('.menu-title').textContent;
+    alert(`Opening: ${title}`);
+  });
+});
+
+document.querySelector('.edit-btn')?.addEventListener('click', function() {
+  alert('Edit profile feature coming soon!');
+});
+
+document.querySelector('.logout-btn')?.addEventListener('click', function() {
+  if (confirm('Are you sure you want to log out?')) {
+    alert('Logging out...');
+  }
+});
+</script>
+
+</body>
+</html>
