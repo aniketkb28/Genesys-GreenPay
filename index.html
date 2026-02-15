@@ -597,6 +597,51 @@ body::before{content:'';position:fixed;inset:0;background:
 
 /* ── Page bottom padding ── */
 .page{padding-bottom:90px;}
+
+/* ══════════════════════════════════════
+   AUTH SCREEN
+══════════════════════════════════════ */
+#authScreen{
+  position:fixed;inset:0;z-index:10000;
+  background:var(--bg-deep);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:28px 28px 48px;
+  transition:opacity .4s, transform .4s;}
+#authScreen.hidden{opacity:0;transform:translateY(-20px);pointer-events:none;}
+
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.auth-logo-icon{width:52px;height:52px;background:linear-gradient(135deg,#16a34a,#4ade80);
+  border-radius:16px;display:flex;align-items:center;justify-content:center;
+  font-size:28px;box-shadow:0 0 28px rgba(74,222,128,.45);}
+.auth-logo-text{font-family:'Fraunces',serif;font-size:32px;font-weight:700;
+  background:linear-gradient(90deg,#4ade80,#86efac);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.auth-tagline{font-size:13px;color:var(--text-muted);margin-bottom:36px;text-align:center;}
+
+.auth-tabs{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:14px;padding:4px;gap:4px;margin-bottom:28px;width:100%;max-width:360px;}
+.auth-tab{flex:1;padding:10px;border-radius:10px;font-size:14px;font-weight:600;
+  color:var(--text-muted);cursor:pointer;text-align:center;transition:all .2s;border:none;background:none;}
+.auth-tab.active{background:rgba(74,222,128,.15);color:var(--leaf-light);
+  border:1px solid rgba(74,222,128,.3);}
+
+.auth-form{width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px;}
+.auth-field{display:flex;flex-direction:column;gap:6px;}
+.auth-label{font-size:12px;color:var(--text-muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.auth-input{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;font-size:15px;color:var(--text-pri);font-family:'DM Sans',sans-serif;
+  outline:none;transition:border-color .2s;width:100%;}
+.auth-input:focus{border-color:rgba(74,222,128,.5);}
+.auth-input::placeholder{color:var(--text-muted);}
+.auth-error{font-size:12px;color:var(--red);min-height:16px;padding:0 4px;}
+
+.auth-btn{background:linear-gradient(135deg,#16a34a,#4ade80);border:none;border-radius:14px;
+  padding:16px;font-size:16px;font-weight:700;color:#050e08;cursor:pointer;
+  transition:all .2s;box-shadow:0 4px 20px rgba(74,222,128,.3);margin-top:4px;}
+.auth-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(74,222,128,.4);}
+.auth-btn:active{transform:translateY(0);}
+
+.auth-footer{margin-top:24px;font-size:12px;color:var(--text-muted);text-align:center;line-height:1.6;}
 </style>
 </head>
 <body>
@@ -604,7 +649,61 @@ body::before{content:'';position:fixed;inset:0;background:
 <!-- Carbon particles background -->
 <div class="carbon-field" id="carbonField"></div>
 
-<div class="app">
+<!-- ══════════════════════════════════════
+     AUTH SCREEN (Login / Sign Up)
+══════════════════════════════════════ -->
+<div id="authScreen">
+  <div class="auth-logo">
+    <div class="auth-logo-icon">🌱</div>
+    <div class="auth-logo-text">CarbonCash</div>
+  </div>
+  <div class="auth-tagline">Track your carbon. Earn green rewards.</div>
+
+  <div class="auth-tabs">
+    <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Log In</button>
+    <button class="auth-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button>
+  </div>
+
+  <!-- Login Form -->
+  <div class="auth-form" id="loginForm">
+    <div class="auth-field">
+      <div class="auth-label">Username</div>
+      <input class="auth-input" id="loginUsername" type="text" placeholder="Enter your username" autocomplete="username">
+    </div>
+    <div class="auth-field">
+      <div class="auth-label">Password</div>
+      <input class="auth-input" id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password">
+    </div>
+    <div class="auth-error" id="loginError"></div>
+    <button class="auth-btn" onclick="handleLogin()">Log In →</button>
+  </div>
+
+  <!-- Sign Up Form -->
+  <div class="auth-form" id="signupForm" style="display:none;">
+    <div class="auth-field">
+      <div class="auth-label">Full Name</div>
+      <input class="auth-input" id="signupName" type="text" placeholder="e.g. Priya Sharma" autocomplete="name">
+    </div>
+    <div class="auth-field">
+      <div class="auth-label">Username</div>
+      <input class="auth-input" id="signupUsername" type="text" placeholder="Choose a username" autocomplete="username">
+    </div>
+    <div class="auth-field">
+      <div class="auth-label">Password</div>
+      <input class="auth-input" id="signupPassword" type="password" placeholder="Min. 6 characters" autocomplete="new-password">
+    </div>
+    <div class="auth-field">
+      <div class="auth-label">Confirm Password</div>
+      <input class="auth-input" id="signupConfirm" type="password" placeholder="Repeat password" autocomplete="new-password">
+    </div>
+    <div class="auth-error" id="signupError"></div>
+    <button class="auth-btn" onclick="handleSignup()">Create Account →</button>
+  </div>
+
+  <div class="auth-footer">Your data is stored locally on this device only.<br>No account info is sent to any server.</div>
+</div>
+
+<div class="app" id="mainApp" style="display:none;">
   <div class="pages">
 
     <!-- ══════════════════════════════════════
@@ -945,7 +1044,8 @@ body::before{content:'';position:fixed;inset:0;background:
         <div class="menu-item"><div class="menu-icon">🔔</div><div class="menu-text"><div class="menu-title">Notifications</div><div class="menu-subtitle">Manage alerts & reminders</div></div><div class="menu-arrow">›</div></div>
         <div class="menu-item"><div class="menu-icon">🔗</div><div class="menu-text"><div class="menu-title">Linked Accounts</div><div class="menu-subtitle">3 cards connected</div></div><div class="menu-arrow">›</div></div>
         <div class="menu-item"><div class="menu-icon">🌍</div><div class="menu-text"><div class="menu-title">Offset Programs</div><div class="menu-subtitle">Plant trees & support projects</div></div><div class="menu-arrow">›</div></div>
-        <div class="menu-item"><div class="menu-icon">📊</div><div class="menu-text"><div class="menu-title">Export Data</div><div class="menu-subtitle">Download your carbon history</div></div><div class="menu-arrow">›</div></div>
+        <div class="menu-item" id="exportDataBtn" style="cursor:pointer;" onclick="exportToCSV()"><div class="menu-icon">📊</div><div class="menu-text"><div class="menu-title">Export Data</div><div class="menu-subtitle">Download your carbon history as CSV</div></div><div class="menu-arrow">⬇️</div></div>
+        <div class="menu-item" id="deleteDataBtn" style="cursor:pointer;" onclick="showDeleteConfirm()"><div class="menu-icon">🗑️</div><div class="menu-text"><div class="menu-title" style="color:var(--red);">Delete All Data</div><div class="menu-subtitle">Permanently erase all saved data & CSV</div></div><div class="menu-arrow" style="color:var(--red);">›</div></div>
       </div>
 
       <div class="section-title">Support</div>
@@ -1259,6 +1359,33 @@ body::before{content:'';position:fixed;inset:0;background:
   </div>
 </div>
 
+<!-- Delete Data Confirmation Modal -->
+<div class="modal" id="deleteModal" style="z-index:4000;">
+  <div class="modal-sheet" id="deleteModalSheet" style="max-height:340px;">
+    <div class="modal-handle"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-icon-big high" style="background:rgba(248,113,113,.15);border:1.5px solid rgba(248,113,113,.35);">
+          <span>🗑️</span>
+        </div>
+        <div class="modal-info">
+          <h3 style="color:var(--red);">Delete All Data?</h3>
+          <div class="cat">This cannot be undone</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:16px 0;">
+        This will permanently erase your <strong style="color:var(--text-pri);">transaction history, green points, claimed rewards, weekly goal</strong> and the saved CSV file from this device.
+      </p>
+      <div style="display:flex;gap:12px;margin-top:8px;">
+        <button class="modal-close" id="deleteCancelBtn" style="background:rgba(255,255,255,.05);box-shadow:none;flex:1;font-size:14px;">Cancel</button>
+        <button id="deleteConfirmBtn" style="flex:2;padding:16px;border-radius:14px;border:none;background:rgba(248,113,113,.2);border:1.5px solid rgba(248,113,113,.4);color:#f87171;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;">
+          Yes, Delete Everything
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Notification Container -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -1376,28 +1503,304 @@ body::before{content:'';position:fixed;inset:0;background:
 // ══════════════════════════════════════
 // CARBON PARTICLES
 // ══════════════════════════════════════
-const carbonField = document.getElementById('carbonField');
-const carbonSymbols = ['CO₂', '🌿', '♻️', '🌍'];
-for(let i = 0; i < 15; i++) {
-  const p = document.createElement('div');
-  p.className = 'carbon-particle';
-  p.textContent = carbonSymbols[Math.floor(Math.random() * carbonSymbols.length)];
-  p.style.left = Math.random() * 100 + '%';
-  p.style.fontSize = (Math.random() * 12 + 16) + 'px';
-  p.style.animationDuration = (Math.random() * 20 + 25) + 's';
-  p.style.animationDelay = Math.random() * 15 + 's';
-  p.style.color = 'rgba(74,222,128,0.2)';
-  carbonField.appendChild(p);
+function initCarbonParticles() {
+  const carbonField = document.getElementById('carbonField');
+  if (carbonField.children.length > 0) return; // already done
+  const carbonSymbols = ['CO₂', '🌿', '♻️', '🌍'];
+  for(let i = 0; i < 15; i++) {
+    const p = document.createElement('div');
+    p.className = 'carbon-particle';
+    p.textContent = carbonSymbols[Math.floor(Math.random() * carbonSymbols.length)];
+    p.style.left = Math.random() * 100 + '%';
+    p.style.fontSize = (Math.random() * 12 + 16) + 'px';
+    p.style.animationDuration = (Math.random() * 20 + 25) + 's';
+    p.style.animationDelay = Math.random() * 15 + 's';
+    p.style.color = 'rgba(74,222,128,0.2)';
+    carbonField.appendChild(p);
+  }
 }
 
 // ══════════════════════════════════════
-// STATE
+// AUTH  +  PER-USER STATE
 // ══════════════════════════════════════
+const USERS_KEY   = 'carboncash_users';   // stores all registered user credentials
+let   currentUser = null;                  // { username, name } of logged-in user
+let   LS_KEY      = '';                    // set per-user on login
+
+// ── User registry helpers ──
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveUsers(users) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+// ── Auth tab switch ──
+function switchAuthTab(tab) {
+  document.getElementById('loginForm').style.display   = tab === 'login'  ? 'flex' : 'none';
+  document.getElementById('signupForm').style.display  = tab === 'signup' ? 'flex' : 'none';
+  document.getElementById('loginTab').classList.toggle('active',  tab === 'login');
+  document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
+  document.getElementById('loginError').textContent  = '';
+  document.getElementById('signupError').textContent = '';
+}
+
+// ── Login handler ──
+function handleLogin() {
+  const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+  const password = document.getElementById('loginPassword').value;
+  const errEl    = document.getElementById('loginError');
+
+  if (!username || !password) { errEl.textContent = 'Please fill in all fields.'; return; }
+
+  const users = getUsers();
+  if (!users[username]) { errEl.textContent = 'Username not found. Please sign up first.'; return; }
+  if (users[username].password !== btoa(password)) { errEl.textContent = 'Incorrect password.'; return; }
+
+  errEl.textContent = '';
+  loginUser(username, users[username].name);
+}
+
+// ── Sign up handler ──
+function handleSignup() {
+  const name     = document.getElementById('signupName').value.trim();
+  const username = document.getElementById('signupUsername').value.trim().toLowerCase();
+  const password = document.getElementById('signupPassword').value;
+  const confirm  = document.getElementById('signupConfirm').value;
+  const errEl    = document.getElementById('signupError');
+
+  if (!name || !username || !password || !confirm) { errEl.textContent = 'Please fill in all fields.'; return; }
+  if (username.length < 3)   { errEl.textContent = 'Username must be at least 3 characters.'; return; }
+  if (password.length < 6)   { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+  if (password !== confirm)  { errEl.textContent = 'Passwords do not match.'; return; }
+
+  const users = getUsers();
+  if (users[username]) { errEl.textContent = 'Username already taken. Try another.'; return; }
+
+  users[username] = { name, password: btoa(password) };
+  saveUsers(users);
+  errEl.textContent = '';
+  loginUser(username, name);
+}
+
+// ── Core login: set user, load their data, show app ──
+function loginUser(username, name) {
+  currentUser = { username, name };
+  LS_KEY = 'carboncash_v1_' + username;   // per-user key
+
+  // Store session so refresh stays logged in
+  sessionStorage.setItem('carboncash_session', JSON.stringify(currentUser));
+
+  // Hide auth, show app
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('mainApp').style.display = 'flex';
+
+  // Restore this user's saved state
+  restoreUserState();
+
+  // Update all name/username displays in the app
+  updateUserDisplays();
+
+  // Boot UI
+  setTimeout(() => {
+    initCarbonParticles();
+    if (allTransactions.length > 0) refreshUIFromState();
+  }, 50);
+}
+
+// ── Logout: clear session, reset state, show auth ──
+function logoutUser() {
+  saveState();  // save before leaving
+  sessionStorage.removeItem('carboncash_session');
+  currentUser = null;
+  LS_KEY = '';
+
+  // Reset all in-memory state
+  allTransactions  = [];
+  greenPoints      = 0;
+  weeklyGoal       = 8.0;
+  goalStatus       = 'active';
+  transactionCount = 0;
+  claimedRewards   = new Set();
+
+  // Reset UI
+  ['homeTxnList','transactionsTxnList'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.innerHTML = '';
+  });
+
+  // Clear login inputs
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').textContent = '';
+
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('authScreen').classList.remove('hidden');
+  switchAuthTab('login');
+}
+
+// ── Update name everywhere in the app ──
+function updateUserDisplays() {
+  const name = currentUser?.name || 'User';
+  const username = currentUser?.username || '';
+  // Profile page name & email
+  const nameEl = document.querySelector('.profile-name');
+  if (nameEl) nameEl.textContent = name;
+  const emailEl = document.querySelector('.profile-email');
+  if (emailEl) emailEl.textContent = '@' + username;
+}
+
+// ── Restore saved state for current user ──
+function restoreUserState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (s.allTransactions)           allTransactions  = s.allTransactions;
+    if (s.weeklyGoal)                weeklyGoal       = s.weeklyGoal;
+    if (s.greenPoints !== undefined) greenPoints      = s.greenPoints;
+    if (s.goalStatus)                goalStatus       = s.goalStatus;
+    if (s.transactionCount)          transactionCount = s.transactionCount;
+    if (s.claimedRewards)            claimedRewards   = new Set(s.claimedRewards);
+  } catch(e) { console.warn('State restore failed:', e); }
+}
+
+// ── Check if already logged in from this session ──
+(function checkSession() {
+  try {
+    const session = sessionStorage.getItem('carboncash_session');
+    if (session) {
+      const { username, name } = JSON.parse(session);
+      const users = getUsers();
+      if (users[username]) {
+        // Auto-login without showing auth screen
+        loginUser(username, name);
+        return;
+      }
+    }
+  } catch(e) {}
+  // No session — show auth screen (already visible by default)
+})();
+
+// ── STATE variables (populated on login) ──
 let allTransactions = [];
-let weeklyGoal = 8.0;
-let greenPoints = 0;
-let goalStatus = 'active';
+let weeklyGoal      = 8.0;
+let greenPoints     = 0;
+let goalStatus      = 'active';
 let transactionCount = 0;
+let claimedRewards  = new Set();
+
+// ── CSV builder (single file, all data) ──
+function escapeCSV(val) {
+  if (val === null || val === undefined) return '';
+  const s = String(val);
+  return (s.includes(',') || s.includes('"') || s.includes('\n'))
+    ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function buildCSV() {
+  const now        = new Date().toLocaleString('en-IN');
+  const totalCO2   = allTransactions.reduce((s, t) => s + t.carbon, 0).toFixed(2);
+  const totalSpend = allTransactions.reduce((s, t) => s + (t.amount || 0), 0);
+  const goalLabel  = goalStatus === 'success' ? 'Achieved' : goalStatus === 'failed' ? 'Failed' : 'Active';
+  const cats = {};
+  allTransactions.forEach(t => { cats[t.cat] = (cats[t.cat] || 0) + t.carbon; });
+
+  const rows = [
+    // header row describes all columns
+    ['section','field_or_id','value_or_date','col3','col4','col5','col6','col7','col8','col9','col10'],
+    // ── profile ──
+    ['profile','last_updated',       now],
+    ['profile','username',           currentUser?.username || ''],
+    ['profile','name',               currentUser?.name || ''],
+    ['profile','green_points',       greenPoints],
+    ['profile','weekly_goal_kg',     weeklyGoal.toFixed(1)],
+    ['profile','goal_status',        goalLabel],
+    ['profile','total_co2_kg',       totalCO2],
+    ['profile','total_spend_inr',    totalSpend],
+    ['profile','total_transactions', allTransactions.length],
+    ['profile','claimed_rewards',    [...claimedRewards].join('; ') || 'None'],
+    // ── category breakdown ──
+    ['category','category_name','co2_kg'],
+    ...Object.entries(cats).map(([cat, kg]) => ['category', cat, kg.toFixed(2)]),
+    // ── transactions ──
+    ['transaction','id','date','time','merchant','category','mcc','amount_inr','co2_kg','impact','gp_change','eco_tip'],
+    ...allTransactions.map(t => {
+      const base = Math.floor((t.amount || 0) / 100);
+      const gp   = t.impact === 'low' ? '+' + base * 6
+                 : t.impact === 'medium' ? '+' + base * 2
+                 : '-' + base * 4;
+      return ['transaction', t.id, t.date||'', t.time||'', t.name, t.cat,
+              t.mcc||'', t.amount||'', t.carbon.toFixed(2), t.impact, gp, t.tip||''];
+    }),
+  ];
+  return rows.map(r => r.map(escapeCSV).join(',')).join('\r\n');
+}
+
+// ── Save everything: JSON to localStorage + CSV blob to localStorage ──
+function saveState() {
+  if (!LS_KEY) return; // not logged in yet
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      allTransactions, weeklyGoal, greenPoints,
+      goalStatus, transactionCount,
+      claimedRewards: [...claimedRewards]
+    }));
+    localStorage.setItem(LS_KEY + '_csv', buildCSV());
+  } catch(e) { console.warn('Save failed:', e); }
+}
+
+// ── Download the single CSV (always the same filename so it overwrites) ──
+function downloadCSVFromStore() {
+  const content = localStorage.getItem(LS_KEY + '_csv') || buildCSV();
+  const blob    = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url     = URL.createObjectURL(blob);
+  const a       = Object.assign(document.createElement('a'), {
+    href: url, download: 'carboncash_data.csv', style: 'display:none'
+  });
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ── Full UI refresh from restored state ──
+function refreshUIFromState() {
+  // Green points
+  document.getElementById('greenPoints').textContent = greenPoints;
+  const gpEl = document.getElementById('rewardsGP');
+  if (gpEl) gpEl.textContent = greenPoints;
+
+  // Re-render all transactions into both lists
+  const homeList = document.getElementById('homeTxnList');
+  const txnsList = document.getElementById('transactionsTxnList');
+  if (homeList) homeList.innerHTML = '';
+  if (txnsList) txnsList.innerHTML = '';
+
+  allTransactions.forEach(txn => {
+    const el = createTxnElement(txn);
+    if (homeList && homeList.children.length < 5) homeList.appendChild(el.cloneNode(true));
+    if (txnsList) txnsList.appendChild(el);
+  });
+
+  // Re-attach click handlers on restored txn items
+  document.querySelectorAll('.txn-item[data-txn]').forEach(item => {
+    item.addEventListener('click', () => {
+      const id  = item.getAttribute('data-txn');
+      const txn = allTransactions.find(t => t.id === id);
+      if (txn) showTransactionModal(txn);
+    });
+  });
+
+  // Refresh all stats panels
+  updateWeeklyCarbon();
+  updateCategoryBreakdown();
+  updateWeeklyChart();
+  updateComparisonCard();
+  updateAchievements();
+}
+
+// ── Save on every state mutation ──
+window.addEventListener('beforeunload', saveState);
 
 // ══════════════════════════════════════
 // MERCHANT DATA
@@ -1549,6 +1952,7 @@ function addTransactionToUI(txn) {
   updateAchievements();
   transactionCount++;
   checkGoalStatus();
+  saveState();
   
   // Award/deduct green points based on transaction impact
   let gpChange = 0;
@@ -1574,6 +1978,7 @@ function addTransactionToUI(txn) {
     const el = document.getElementById('rewardsGP'); 
     if (el) el.textContent = greenPoints;
     updateAchievements(); // Update achievements when GP changes
+    saveState();
   }
   
   return gpChange; // Return for notification display
@@ -2022,6 +2427,7 @@ function awardGreenPoints() {
     greenPoints += 50;
     document.getElementById('greenPoints').textContent = greenPoints;
     const el = document.getElementById('rewardsGP'); if (el) el.textContent = greenPoints;
+    saveState();
     updateAchievements(); // Update achievements when GP awarded
     const alert = document.getElementById('goalStatusAlert');
     alert.classList.remove('hidden','failed');
@@ -2058,6 +2464,7 @@ document.getElementById('goalSaveBtn').addEventListener('click', function() {
     document.getElementById('goalStatusAlert').classList.add('hidden');
     closeGoalModal();
     updateWeeklyCarbon();
+    saveState();
     const orig = this.textContent;
     this.textContent = '✓ Goal Saved!';
     this.style.opacity = '0.8';
@@ -2096,6 +2503,8 @@ document.querySelectorAll('.filter-tab').forEach(tab => {
 // ══════════════════════════════════════
 document.querySelectorAll('.menu-item').forEach(item => {
   item.addEventListener('click', function() {
+    if (this.id === 'exportDataBtn') return; // handled by onclick
+    if (this.id === 'deleteDataBtn') return;  // handled by onclick
     const title = this.querySelector('.menu-title')?.textContent;
     if (title) showToast('Opening', title, '📱');
   });
@@ -2106,13 +2515,120 @@ document.getElementById('editProfileBtn').addEventListener('click', () => {
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
-  showToast('Logging Out', 'See you soon! 👋', '🚪');
+  if (confirm('Log out of CarbonCash?')) logoutUser();
 });
+
+// Allow Enter key on auth inputs
+['loginUsername','loginPassword'].forEach(id => {
+  document.getElementById(id)?.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+});
+['signupName','signupUsername','signupPassword','signupConfirm'].forEach(id => {
+  document.getElementById(id)?.addEventListener('keydown', e => { if (e.key === 'Enter') handleSignup(); });
+});
+
+// ══════════════════════════════════════
+// CSV EXPORT
+// ══════════════════════════════════════
+function escapeCSV(val) {
+  if (val === null || val === undefined) return '';
+  const str = String(val);
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+function downloadCSV(content, filename) {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href     = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function exportToCSV() {
+  const now       = new Date();
+  const timestamp = now.toISOString().slice(0, 19).replace('T', ' ');
+  const dateTag   = now.toISOString().slice(0, 10);
+
+  // ── 1. USER PROFILE SUMMARY CSV ──────────────────────────────
+  const totalCarbon = allTransactions.reduce((s, t) => s + t.carbon, 0);
+  const totalSpend  = allTransactions.reduce((s, t) => s + (t.amount || 0), 0);
+  const goalLabel   = goalStatus === 'success' ? 'Achieved' : goalStatus === 'failed' ? 'Failed' : 'Active';
+  const claimed     = [...claimedRewards].join('; ') || 'None';
+
+  const profileRows = [
+    ['Field', 'Value'],
+    ['Export Timestamp', timestamp],
+    ['Username',         'Priya Sharma'],
+    ['Email',            'priya@carboncash.app'],
+    ['Green Points (GP)', greenPoints],
+    ['Weekly Carbon Goal (kg CO₂)', weeklyGoal.toFixed(1)],
+    ['Goal Status',      goalLabel],
+    ['Total CO₂ This Week (kg)', totalCarbon.toFixed(2)],
+    ['Total Transactions', allTransactions.length],
+    ['Total Spend (₹)',  totalSpend],
+    ['Claimed Rewards',  claimed],
+  ];
+
+  // Category breakdown
+  const cats = { 'Eating Places': 0, 'Gas Station': 0, 'Grocery Store': 0,
+                 'Clothing Store': 0, 'Entertainment': 0, 'Health & Fitness': 0, 'Restaurant': 0, 'Fast Food': 0 };
+  allTransactions.forEach(t => { if (cats[t.cat] !== undefined) cats[t.cat] += t.carbon; });
+  profileRows.push(['', '']);
+  profileRows.push(['--- Carbon by Category ---', '']);
+  Object.entries(cats).forEach(([cat, kg]) => {
+    if (kg > 0) profileRows.push([cat + ' (kg CO₂)', kg.toFixed(2)]);
+  });
+
+  const profileCSV = profileRows.map(r => r.map(escapeCSV).join(',')).join('\r\n');
+
+  // ── 2. TRANSACTION HISTORY CSV ───────────────────────────────
+  const txnHeaders = [
+    'Transaction ID', 'Date', 'Time', 'Merchant Name',
+    'Category', 'MCC Code', 'Amount (₹)', 'Carbon (kg CO₂)',
+    'Impact Level', 'Green Points Change', 'Eco Tip'
+  ];
+
+  const txnRows = allTransactions.map(t => {
+    // Recalculate GP change direction based on impact
+    let gpEstimate = '';
+    if (t.impact === 'low')    gpEstimate = '+' + Math.round((t.amount / 1000) * 6 * 2);
+    if (t.impact === 'medium') gpEstimate = '+' + Math.round((t.amount / 1000) * 2 * 2);
+    if (t.impact === 'high')   gpEstimate = '-' + Math.round((t.amount / 1000) * 4 * 2);
+
+    return [
+      t.id,
+      t.date  || dateTag,
+      t.time  || '',
+      t.name,
+      t.cat,
+      t.mcc   || '',
+      t.amount || '',
+      t.carbon.toFixed(2),
+      t.impact,
+      gpEstimate,
+      t.tip   || ''
+    ];
+  });
+
+  const txnCSV = [txnHeaders, ...txnRows].map(r => r.map(escapeCSV).join(',')).join('\r\n');
+
+  // ── Download both files ───────────────────────────────────────
+  downloadCSV(profileCSV, `carboncash_profile_${dateTag}.csv`);
+  setTimeout(() => {
+    downloadCSV(txnCSV, `carboncash_transactions_${dateTag}.csv`);
+  }, 400);
+
+  showToast('Export Complete! 📊', '2 CSV files downloaded: profile & transactions', '✅', 4000);
+}
 // ══════════════════════════════════════
 // REWARDS & MERCHANTS DATA
 // ══════════════════════════════════════
-let claimedRewards = new Set();
-
 const rewardData = {
   solar: { icon:'☀️', title:'Solar Panel Discount', subtitle:'Renewable Energy Investment',
     description:'Get 10% off professional solar panel installation from certified partners. Convert your home to clean, renewable energy and reduce your carbon footprint by up to 80%.',
@@ -2312,6 +2828,7 @@ function claimReward(type, cost) {
     document.getElementById('greenPoints').textContent = greenPoints;
     document.getElementById('rewardsGP').textContent = greenPoints;
     closeDetailModal();
+    saveState();
     showToast('Reward Claimed!', `${rewardData[type]?.title} • Check your email for details`, '🎉', 4000);
   } else {
     closeDetailModal();
@@ -2327,6 +2844,7 @@ function redeemInvestment(type, cost) {
     document.getElementById('greenPoints').textContent = greenPoints;
     document.getElementById('rewardsGP').textContent = greenPoints;
     closeDetailModal();
+    saveState();
     showToast('Investment Redeemed!', `${investmentData[type]?.title} • Check your email for the discount code`, '🎉', 4000);
   } else {
     closeDetailModal();
@@ -2360,6 +2878,84 @@ function updateRewardsGP() {
   const el = document.getElementById('rewardsGP');
   if (el) el.textContent = greenPoints;
 }
+
+// ══════════════════════════════════════
+// PERSISTENT DATA STORE (localStorage)
+// ══════════════════════════════════════
+// saveState(), buildCSV(), downloadCSVFromStore() defined in STATE block above
+
+// ── Export Data button ──
+document.getElementById('exportDataBtn').onclick = function() {
+  saveState();
+  downloadCSVFromStore();
+  showToast('CSV Downloaded! 📊', 'carboncash_data.csv — always the same file', '✅', 3500);
+};
+
+// ── Restore UI on page load if saved data exists ──
+if (allTransactions.length > 0) {
+  // Defer until all functions are defined (end of script)
+  setTimeout(refreshUIFromState, 0);
+}
+
+// ══════════════════════════════════════
+// DELETE ALL DATA
+// ══════════════════════════════════════
+function showDeleteConfirm() {
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('open');
+}
+
+function deleteAllData() {
+  // Reset all state
+  allTransactions  = [];
+  greenPoints      = 0;
+  weeklyGoal       = 8.0;
+  goalStatus       = 'active';
+  transactionCount = 0;
+  claimedRewards   = new Set();
+
+  // Wipe localStorage completely
+  localStorage.removeItem(LS_KEY);
+  localStorage.removeItem(LS_KEY + '_csv');
+
+  // Reset GP displays
+  ['greenPoints','rewardsGP'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '0';
+  });
+
+  // Reset goal display
+  const goalValEl = document.getElementById('goalValue');
+  if (goalValEl) goalValEl.textContent = '8.0';
+  const profileCarbon = document.getElementById('profileTotalCarbon');
+  if (profileCarbon) profileCarbon.textContent = '0';
+
+  // Clear transaction lists
+  ['homeTxnList','transactionsTxnList'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+
+  // Refresh all stat panels back to zero
+  updateWeeklyCarbon();
+  updateCategoryBreakdown();
+  updateWeeklyChart();
+  updateComparisonCard();
+  updateAchievements();
+
+  closeDeleteModal();
+  showToast('Data Deleted', 'All your data has been permanently erased', '🗑️', 3500);
+}
+
+// Wire up delete modal buttons
+document.getElementById('deleteCancelBtn').addEventListener('click', closeDeleteModal);
+document.getElementById('deleteConfirmBtn').addEventListener('click', deleteAllData);
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteModal();
+});
 
 </script>
 </body>
