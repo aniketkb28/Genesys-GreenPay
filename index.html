@@ -5,644 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>CarbonCash – Carbon Footprint Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700;9..144,800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg-deep:    #050e08;
-  --bg-card:    #0b1a0f;
-  --bg-glass:   rgba(14,30,18,0.88);
-  --green-glow: #22c55e;
-  --green-mid:  #16a34a;
-  --green-dark: #14532d;
-  --leaf-light: #4ade80;
-  --leaf-pale:  #86efac;
-  --gold:       #fbbf24;
-  --gold-dark:  #d97706;
-  --red:        #f87171;
-  --orange:     #fb923c;
-  --blue:       #38bdf8;
-  --text-pri:   #e8fced;
-  --text-muted: #6b9a7a;
-  --border:     rgba(34,197,94,0.13);
-  --r:          22px;
-}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{background:var(--bg-deep);color:var(--text-pri);font-family:'DM Sans',sans-serif;width:100%;height:100%;overflow:hidden;}
-
-/* ── Ambient BG ── */
-body::before{content:'';position:fixed;inset:0;background:
-  radial-gradient(ellipse 55% 45% at 20% -5%,rgba(22,163,74,.16) 0%,transparent 65%),
-  radial-gradient(ellipse 45% 55% at 80% 105%,rgba(20,83,45,.25) 0%,transparent 60%);
-  pointer-events:none;z-index:0;}
-
-/* ── Carbon particles floating ── */
-.carbon-field{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;}
-.carbon-particle{position:absolute;opacity:0;animation:floatCarbon linear infinite;}
-@keyframes floatCarbon{
-  0%  {transform:translateY(110vh) translateX(0) rotate(0deg) scale(.8);opacity:0;}
-  6%  {opacity:.3;}
-  90% {opacity:.15;}
-  100%{transform:translateY(-15vh) translateX(40px) rotate(380deg) scale(.5);opacity:0;}
-}
-
-/* ── App shell ── */
-.app{position:fixed;inset:0;z-index:2;max-width:430px;margin:0 auto;display:flex;flex-direction:column;box-shadow:0 0 60px rgba(0,0,0,.8);}
-
-/* ── Page system ── */
-.pages{flex:1;min-height:0;position:relative;overflow:hidden;}
-.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding-bottom:12px;
-  opacity:0;transform:translateX(30px);pointer-events:none;-webkit-overflow-scrolling:touch;
-  transition:opacity .35s cubic-bezier(.4,0,.2,1),transform .35s cubic-bezier(.4,0,.2,1);}
-.page.active{opacity:1;transform:translateX(0);pointer-events:all;}
-
-/* ── Header ── */
-.header{padding:16px 24px 0;display:flex;justify-content:space-between;align-items:center;}
-.logo{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;
-  font-size:24px;font-weight:600;color:var(--leaf-light);letter-spacing:-.5px;}
-.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#16a34a,#4ade80);
-  border-radius:10px;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 18px rgba(74,222,128,.35);animation:logoPulse 3s ease-in-out infinite;}
-@keyframes logoPulse{0%,100%{box-shadow:0 0 18px rgba(74,222,128,.35);}50%{box-shadow:0 0 32px rgba(74,222,128,.6),0 0 60px rgba(74,222,128,.2);}}
-.qr-btn{width:38px;height:38px;border-radius:12px;background:var(--bg-glass);
-  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
-  cursor:pointer;backdrop-filter:blur(10px);position:relative;transition:transform .2s;}
-.qr-btn:hover{transform:scale(1.08);}
-
-/* ── Greeting ── */
-.greeting{padding:18px 24px 0;}
-.greeting .sub{font-size:13px;color:var(--text-muted);margin-bottom:3px;}
-.greeting .name{font-family:'Fraunces',serif;font-size:28px;font-weight:700;
-  background:linear-gradient(90deg,#4ade80,#86efac,#d4a853);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-
-/* ── Carbon Impact Card ── */
-.impact-card{margin:20px 20px 0;
-  background:linear-gradient(145deg,#0d2016 0%,#0a1c12 50%,#0f2719 100%);
-  border:1px solid rgba(74,222,128,.17);border-radius:28px;padding:24px 26px;
-  position:relative;overflow:hidden;
-  box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 0 1px rgba(74,222,128,.05) inset;}
-.impact-card::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
-  background:radial-gradient(circle,rgba(34,197,94,.11) 0%,transparent 70%);
-  animation:cardGlow 4s ease-in-out infinite;}
-@keyframes cardGlow{0%,100%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.3);}}
-
-.impact-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
-.impact-left{}
-.impact-label{font-size:11px;color:var(--text-muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
-.carbon-amount{font-family:'Fraunces',serif;font-size:48px;font-weight:700;
-  background:linear-gradient(135deg,#f87171,#fb923c);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  line-height:1;display:flex;align-items:baseline;gap:4px;}
-.carbon-amount .unit{font-size:20px;color:var(--text-muted);}
-
-.goal-ring{width:68px;height:68px;position:relative;}
-.goal-ring svg{transform:rotate(-90deg);}
-.goal-ring-label{position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;font-size:13px;font-weight:700;
-  color:var(--leaf-light);line-height:1;}
-.goal-ring-label small{font-size:9px;color:var(--text-muted);font-weight:400;}
-
-.goal-info{background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);
-  border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px;}
-.goal-icon{font-size:24px;filter:drop-shadow(0 0 8px rgba(251,146,60,.4));}
-.goal-text{flex:1;}
-.goal-text .main{font-size:14px;font-weight:600;color:var(--text-pri);margin-bottom:2px;}
-.goal-text .sub{font-size:11px;color:var(--text-muted);}
-
-/* ── Goal Setting Card ── */
-.goal-setting-card{margin:20px 20px 0;background:var(--bg-card);border:1px solid var(--border);
-  border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
-.goal-setting-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
-  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
-.goal-setting-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
-.goal-setting-title{font-size:14px;font-weight:600;color:var(--text-pri);margin-bottom:4px;}
-.goal-setting-subtitle{font-size:11px;color:var(--text-muted);}
-.set-goal-btn{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);
-  border-radius:10px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--leaf-light);
-  cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;}
-.set-goal-btn:hover{background:rgba(74,222,128,.15);transform:translateY(-1px);}
-.goal-display{display:flex;justify-content:space-between;align-items:center;}
-.goal-amount-display{display:flex;align-items:baseline;gap:6px;}
-.goal-value{font-family:'Fraunces',serif;font-size:36px;font-weight:700;color:var(--leaf-light);}
-.goal-unit{font-size:14px;color:var(--text-muted);}
-.green-points-badge{background:linear-gradient(135deg,rgba(251,191,36,.15),rgba(251,146,60,.1));
-  border:1px solid rgba(251,191,36,.3);border-radius:14px;padding:10px 14px;display:flex;
-  align-items:center;gap:10px;}
-.gp-icon{font-size:24px;filter:drop-shadow(0 0 8px rgba(251,191,36,.4));}
-.gp-info{text-align:right;}
-.gp-value{font-size:20px;font-weight:700;color:var(--gold);line-height:1;}
-.gp-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-top:2px;}
-
-/* ── Goal Status Alert ── */
-.goal-status-alert{margin:16px 20px 0;border-radius:var(--r);padding:16px 18px;
-  display:flex;align-items:center;transition:all .4s cubic-bezier(.4,0,.2,1);
-  transform-origin:top;opacity:1;max-height:100px;}
-.goal-status-alert.hidden{opacity:0;max-height:0;padding:0;margin:0;overflow:hidden;}
-.goal-status-alert.success{background:linear-gradient(135deg,rgba(74,222,128,.15),rgba(34,197,94,.1));
-  border:1px solid rgba(74,222,128,.3);}
-.goal-status-alert.failed{background:linear-gradient(135deg,rgba(248,113,113,.15),rgba(251,146,60,.1));
-  border:1px solid rgba(248,113,113,.3);}
-.goal-status-content{display:flex;align-items:center;gap:12px;width:100%;}
-.goal-status-icon{font-size:32px;flex-shrink:0;}
-.goal-status-text{flex:1;}
-.goal-status-title{font-size:15px;font-weight:700;color:var(--text-pri);margin-bottom:3px;}
-.goal-status-message{font-size:12px;color:var(--text-muted);}
-
-/* ── Green Points Info Card ── */
-.gp-info-card{margin:16px 20px 0;background:var(--bg-card);border:1px solid var(--border);
-  border-radius:var(--r);padding:18px;position:relative;overflow:hidden;}
-.gp-info-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
-  background:radial-gradient(circle,rgba(251,191,36,.08) 0%,transparent 70%);}
-.gp-info-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.gp-info-icon{font-size:20px;}
-.gp-info-title{font-size:14px;font-weight:700;color:var(--text-pri);}
-.gp-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
-.gp-info-item{background:rgba(255,255,255,.02);border-radius:12px;padding:12px 8px;
-  text-align:center;border:1px solid var(--border);transition:all .2s;}
-.gp-info-item.low{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.04);}
-.gp-info-item.medium{border-color:rgba(251,191,36,.25);background:rgba(251,191,36,.04);}
-.gp-info-item.high{border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.04);}
-.gp-info-item-icon{font-size:24px;margin-bottom:6px;}
-.gp-info-item-label{font-size:10px;color:var(--text-muted);margin-bottom:4px;
-  text-transform:uppercase;letter-spacing:.5px;}
-.gp-info-item-value{font-size:13px;font-weight:700;color:var(--text-pri);}
-.gp-info-item.low .gp-info-item-value{color:var(--leaf-light);}
-.gp-info-item.medium .gp-info-item-value{color:var(--gold);}
-.gp-info-item.high .gp-info-item-value{color:#f87171;}
-.gp-info-footer{font-size:11px;color:var(--text-muted);text-align:center;
-  padding:10px;background:rgba(74,222,128,.05);border-radius:10px;
-  border:1px solid rgba(74,222,128,.15);}
-
-/* ── Goal Setting Modal Input ── */
-.goal-input{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--border);
-  border-radius:12px;padding:14px 16px;font-size:18px;font-weight:600;color:var(--text-pri);
-  font-family:'Fraunces',serif;text-align:center;transition:all .2s;}
-.goal-input:focus{outline:none;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.05);}
-.goal-suggestions{display:flex;gap:8px;margin-top:12px;}
-.goal-suggest-btn{flex:1;background:rgba(255,255,255,.03);border:1px solid var(--border);
-  border-radius:10px;padding:10px 8px;font-size:12px;font-weight:600;color:var(--text-muted);
-  cursor:pointer;transition:all .2s;white-space:nowrap;}
-.goal-suggest-btn:hover{border-color:rgba(74,222,128,.3);color:var(--leaf-light);
-  background:rgba(74,222,128,.08);}
-
-/* ── Sections ── */
-.section-title{padding:24px 24px 12px;font-size:12px;text-transform:uppercase;
-  letter-spacing:1.2px;color:var(--text-muted);font-weight:500;}
-
-/* ── Transaction items ── */
-.txn-list{padding:0 20px;}
-.txn-item{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
-  padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px;
-  cursor:pointer;position:relative;overflow:hidden;transition:all .2s;}
-.txn-item:hover{border-color:rgba(74,222,128,.25);box-shadow:0 6px 20px rgba(0,0,0,.3);}
-.txn-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;
-  justify-content:center;font-size:22px;flex-shrink:0;}
-.txn-icon.high{background:linear-gradient(135deg,rgba(248,113,113,.15),rgba(251,146,60,.15));
-  border:1px solid rgba(248,113,113,.25);}
-.txn-icon.medium{background:linear-gradient(135deg,rgba(251,191,36,.15),rgba(251,146,60,.12));
-  border:1px solid rgba(251,191,36,.25);}
-.txn-icon.low{background:linear-gradient(135deg,rgba(74,222,128,.15),rgba(34,197,94,.12));
-  border:1px solid rgba(74,222,128,.25);}
-.txn-info{flex:1;min-width:0;}
-.txn-name{font-size:15px;font-weight:600;color:var(--text-pri);margin-bottom:3px;}
-.txn-details{font-size:12px;color:var(--text-muted);}
-.txn-right{text-align:right;}
-.txn-carbon{font-size:15px;font-weight:700;margin-bottom:3px;}
-.txn-carbon.high{color:var(--red);}
-.txn-carbon.medium{color:var(--gold);}
-.txn-carbon.low{color:var(--leaf-light);}
-.txn-amount{font-size:11px;color:var(--text-muted);}
-
-/* ── Bottom nav ── */
-.bottom-nav{
-  background:rgba(5,14,8,.94);backdrop-filter:blur(24px);border-top:1px solid var(--border);
-  display:flex;justify-content:space-around;align-items:center;
-  padding:10px 4px 20px;flex-shrink:0;z-index:50;}
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;
-  cursor:pointer;padding:8px 14px;border-radius:14px;transition:all .25s;border:none;background:none;position:relative;}
-.nav-item.active{color:var(--leaf-light);}
-.nav-icon{font-size:22px;transition:transform .2s;display:flex;align-items:center;justify-content:center;}
-.nav-item.active .nav-icon{transform:scale(1.15);}
-.nav-label{font-size:10px;color:var(--text-muted);font-weight:600;letter-spacing:.3px;}
-.nav-item.active .nav-label{color:var(--leaf-light);}
-
-/* ── Weekly Goal Card ── */
-.weekly-card{margin:0 20px 16px;background:var(--bg-card);border:1px solid var(--border);
-  border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
-.weekly-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
-  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
-.weekly-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.weekly-title{font-size:14px;font-weight:600;color:var(--text-pri);}
-.weekly-badge{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);
-  border-radius:8px;padding:4px 10px;font-size:11px;color:var(--leaf-light);font-weight:600;
-  transition:all .3s ease;}
-.weekly-progress{position:relative;height:12px;background:rgba(255,255,255,.03);
-  border-radius:8px;overflow:hidden;margin-bottom:12px;}
-.weekly-progress-bar{height:100%;background:linear-gradient(90deg,#4ade80,#22c55e,#16a34a);
-  border-radius:8px;transition:width .6s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;}
-.weekly-progress-bar::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);
-  animation:shimmerBar 2s linear infinite;}
-@keyframes shimmerBar{to{transform:translateX(100%);}}
-.weekly-stats{display:flex;justify-content:space-between;align-items:center;}
-.weekly-stat .val{font-size:18px;font-weight:700;color:var(--text-pri);}
-.weekly-stat .lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;}
-.weekly-stat.current .val{color:var(--orange);}
-.weekly-stat.goal .val{color:var(--leaf-light);}
-
-/* ── Toast Notification (dark mode) ── */
-.toast-container{position:fixed;top:20px;left:50%;transform:translateX(-50%);
-  z-index:10000;max-width:380px;width:90%;pointer-events:none;}
-.toast{background:linear-gradient(135deg,rgba(11,26,15,.97),rgba(7,18,10,.97));
-  backdrop-filter:blur(24px);
-  border:1px solid rgba(74,222,128,.25);
-  border-radius:16px;padding:14px 18px;margin-bottom:10px;
-  box-shadow:0 12px 40px rgba(0,0,0,.7),0 0 0 1px rgba(74,222,128,.08) inset;
-  transform:translateY(-120%);opacity:0;pointer-events:all;
-  transition:all .4s cubic-bezier(.4,0,.2,1);}
-.toast.show{transform:translateY(0);opacity:1;}
-.toast.hide{transform:translateY(-120%);opacity:0;}
-.toast-content{display:flex;align-items:center;gap:12px;}
-.toast-icon{font-size:26px;flex-shrink:0;
-  filter:drop-shadow(0 0 8px rgba(74,222,128,.4));}
-.toast-text{flex:1;min-width:0;}
-.toast-title{font-size:14px;font-weight:700;color:var(--leaf-light);margin-bottom:2px;}
-.toast-message{font-size:12px;color:var(--text-muted);line-height:1.4;}
-@keyframes toastSlideIn{
-  0%{transform:translateY(-120%);opacity:0;}
-  60%{transform:translateY(4px);}
-  100%{transform:translateY(0);opacity:1;}
-}
-.toast.show{animation:toastSlideIn .4s cubic-bezier(.4,0,.2,1) forwards;}
-
-/* ── Modal for transaction details ── */
-.modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;
-  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
-  opacity:0;pointer-events:none;transition:opacity .3s;}
-.modal.open{opacity:1;pointer-events:all;}
-.modal-sheet{background:linear-gradient(145deg,#0d2016,#0a1c12);
-  border-radius:28px 28px 0 0;width:100%;max-width:430px;margin:0 auto;
-  max-height:85vh;overflow-y:auto;
-  transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
-  border:1px solid rgba(74,222,128,.15);box-shadow:0 -10px 60px rgba(0,0,0,.8);}
-.modal.open .modal-sheet{transform:translateY(0);}
-.modal-handle{width:40px;height:4px;background:rgba(255,255,255,.15);
-  border-radius:2px;margin:12px auto 20px;}
-.modal-content{padding:0 24px 32px;}
-.modal-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
-.modal-icon-big{width:64px;height:64px;border-radius:18px;display:flex;
-  align-items:center;justify-content:center;font-size:32px;flex-shrink:0;}
-.modal-icon-big.high{background:linear-gradient(135deg,rgba(248,113,113,.2),rgba(251,146,60,.2));
-  border:1.5px solid rgba(248,113,113,.35);}
-.modal-icon-big.medium{background:linear-gradient(135deg,rgba(251,191,36,.2),rgba(251,146,60,.15));
-  border:1.5px solid rgba(251,191,36,.35);}
-.modal-icon-big.low{background:linear-gradient(135deg,rgba(74,222,128,.2),rgba(34,197,94,.15));
-  border:1.5px solid rgba(74,222,128,.35);}
-.modal-info h3{font-family:'Fraunces',serif;font-size:22px;font-weight:700;
-  color:var(--text-pri);margin-bottom:4px;}
-.modal-info .cat{font-size:12px;color:var(--text-muted);}
-.modal-divider{height:1px;background:var(--border);margin:20px 0;}
-.modal-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.modal-row .label{font-size:13px;color:var(--text-muted);}
-.modal-row .value{font-size:15px;font-weight:600;color:var(--text-pri);}
-.modal-row .value.carbon{color:var(--orange);font-size:18px;}
-.carbon-breakdown{background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.15);
-  border-radius:16px;padding:16px;margin-bottom:20px;}
-.breakdown-title{font-size:12px;color:var(--text-muted);text-transform:uppercase;
-  letter-spacing:.8px;margin-bottom:12px;}
-.breakdown-item{display:flex;justify-content:space-between;margin-bottom:8px;}
-.breakdown-item:last-child{margin-bottom:0;}
-.breakdown-item .name{font-size:13px;color:var(--text-pri);}
-.breakdown-item .val{font-size:13px;font-weight:600;color:var(--orange);}
-.tip-box{background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);
-  border-radius:16px;padding:16px;display:flex;gap:12px;}
-.tip-icon{font-size:24px;flex-shrink:0;}
-.tip-text{font-size:13px;color:var(--text-muted);line-height:1.5;}
-.tip-text strong{color:var(--leaf-light);}
-.modal-close{width:100%;background:linear-gradient(135deg,#16a34a,#22c55e);
-  border:none;border-radius:16px;padding:16px;font-size:15px;font-weight:600;
-  color:var(--text-pri);cursor:pointer;margin-top:20px;
-  box-shadow:0 6px 20px rgba(34,197,94,.25);transition:transform .2s;}
-.modal-close:hover{transform:translateY(-2px);}
-
-/* ── Responsive ── */
-@media (max-width: 380px) {
-  .carbon-amount{font-size:40px;}
-  .goal-ring{width:60px;height:60px;}
-}
-
-/* ══════════════════════════════════════
-   TRANSACTIONS PAGE STYLES
-══════════════════════════════════════ */
-.filter-tabs{display:flex;gap:8px;padding:12px 20px;overflow-x:auto;scrollbar-width:none;}
-.filter-tabs::-webkit-scrollbar{display:none;}
-.filter-tab{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;
-  padding:8px 16px;font-size:13px;font-weight:500;color:var(--text-muted);
-  cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
-.filter-tab.active{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.3);
-  color:var(--leaf-light);}
-.filter-tab:hover{border-color:rgba(74,222,128,.2);}
-
-/* ══════════════════════════════════════
-   INSIGHTS PAGE STYLES
-══════════════════════════════════════ */
-.insight-card{margin:20px 20px 0;background:var(--bg-card);border:1px solid var(--border);
-  border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
-.insight-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
-  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
-.insight-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-.insight-title{font-size:14px;font-weight:600;color:var(--text-pri);}
-.insight-value{font-family:'Fraunces',serif;font-size:28px;font-weight:700;
-  background:linear-gradient(135deg,#f87171,#fb923c);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.insight-chart{display:flex;gap:12px;align-items:flex-end;height:140px;}
-.chart-bar{flex:1;background:rgba(255,255,255,.03);border-radius:8px;
-  display:flex;align-items:flex-end;justify-content:center;padding:8px;
-  position:relative;transition:all .3s;cursor:pointer;}
-.chart-bar:hover{background:rgba(74,222,128,.08);}
-.chart-bar.active{background:linear-gradient(180deg,rgba(248,113,113,.15),rgba(251,146,60,.1));}
-.chart-bar span{font-size:10px;color:var(--text-muted);text-align:center;line-height:1.3;}
-
-.category-list{padding:0 20px;}
-.category-item{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
-  padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px;}
-.cat-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;
-  justify-content:center;font-size:22px;flex-shrink:0;
-  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);}
-.cat-info{flex:1;min-width:0;}
-.cat-name{font-size:14px;font-weight:600;color:var(--text-pri);margin-bottom:6px;}
-.cat-bar{height:6px;background:rgba(255,255,255,.03);border-radius:4px;overflow:hidden;}
-.cat-bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1);}
-.cat-value{text-align:right;}
-.cat-carbon{font-size:15px;font-weight:700;color:var(--text-pri);margin-bottom:2px;}
-.cat-percent{font-size:11px;color:var(--text-muted);}
-
-.comparison-card{margin:0 20px 16px;background:var(--bg-card);border:1px solid var(--border);
-  border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
-.comparison-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
-  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
-.comp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.comp-title{font-size:14px;font-weight:600;color:var(--text-pri);}
-.comp-badge{padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;}
-.comp-badge.good{background:rgba(74,222,128,.15);color:var(--leaf-light);
-  border:1px solid rgba(74,222,128,.3);}
-.comp-badge.bad{background:rgba(248,113,113,.15);color:#f87171;
-  border:1px solid rgba(248,113,113,.3);}
-.comp-bars{margin-bottom:16px;}
-.comp-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
-.comp-bar-row:last-child{margin-bottom:0;}
-.comp-label{width:60px;font-size:13px;color:var(--text-muted);}
-.comp-bar{flex:1;height:24px;background:rgba(255,255,255,.03);border-radius:8px;overflow:hidden;}
-.comp-bar-fill{height:100%;border-radius:8px;transition:width .6s cubic-bezier(.4,0,.2,1);}
-.comp-bar-fill.yours{background:linear-gradient(90deg,#22c55e,#4ade80);}
-.comp-bar-fill.avg{background:linear-gradient(90deg,#fb923c,#fbbf24);}
-.comp-val{width:60px;text-align:right;font-size:13px;font-weight:600;color:var(--text-pri);}
-.comp-tip{font-size:12px;color:var(--text-muted);line-height:1.5;
-  background:rgba(74,222,128,.06);border-radius:10px;padding:10px;}
-
-.achievement-grid{padding:0 20px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
-.achievement-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
-  padding:16px;text-align:center;position:relative;overflow:hidden;transition:all .2s;}
-.achievement-card.earned{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.04);}
-.achievement-card:not(.earned){opacity:.5;}
-.achievement-card::before{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;
-  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
-.ach-icon{font-size:36px;margin-bottom:8px;}
-.ach-name{font-size:13px;font-weight:600;color:var(--text-pri);margin-bottom:4px;}
-.ach-desc{font-size:10px;color:var(--text-muted);}
-
-/* ══════════════════════════════════════
-   PROFILE PAGE STYLES
-══════════════════════════════════════ */
-.profile-header{margin:20px 20px 0;background:var(--bg-card);border:1px solid var(--border);
-  border-radius:var(--r);padding:20px;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden;}
-.profile-header::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
-  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
-.profile-avatar{width:64px;height:64px;border-radius:18px;
-  background:linear-gradient(135deg,#16a34a,#4ade80);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  box-shadow:0 0 20px rgba(74,222,128,.3);}
-.profile-avatar svg{color:var(--text-pri);}
-.profile-info{flex:1;min-width:0;}
-.profile-name{font-size:18px;font-weight:700;color:var(--text-pri);margin-bottom:4px;}
-.profile-email{font-size:12px;color:var(--text-muted);}
-.edit-btn{padding:8px 16px;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);
-  border-radius:10px;font-size:13px;font-weight:600;color:var(--leaf-light);
-  cursor:pointer;transition:all .2s;}
-.edit-btn:hover{background:rgba(74,222,128,.15);transform:translateY(-1px);}
-
-.profile-stats{padding:0 20px;margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.stat-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
-  padding:16px;text-align:center;position:relative;overflow:hidden;}
-.stat-box::before{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;
-  background:radial-gradient(circle,rgba(34,197,94,.06) 0%,transparent 70%);}
-.stat-icon{font-size:28px;margin-bottom:8px;}
-.stat-num{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--text-pri);margin-bottom:4px;}
-.stat-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;}
-
-.menu-list{padding:0 20px;}
-.menu-item{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
-  padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;
-  cursor:pointer;position:relative;overflow:hidden;transition:all .2s;}
-.menu-item:hover{border-color:rgba(74,222,128,.25);box-shadow:0 4px 16px rgba(0,0,0,.25);}
-.menu-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;
-  justify-content:center;font-size:20px;flex-shrink:0;
-  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);}
-.menu-text{flex:1;min-width:0;}
-.menu-title{font-size:14px;font-weight:600;color:var(--text-pri);margin-bottom:2px;}
-.menu-subtitle{font-size:11px;color:var(--text-muted);}
-.menu-arrow{font-size:24px;color:var(--text-muted);font-weight:300;}
-
-.logout-btn{width:calc(100% - 40px);margin:20px 20px 0;padding:16px;
-  background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);
-  border-radius:16px;font-size:15px;font-weight:600;color:#f87171;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:all .2s;}
-.logout-btn:hover{background:rgba(248,113,113,.15);transform:translateY(-1px);}
-
-/* ── Eco Merchants Page ── */
-.merchant-card{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;
-  padding:18px;margin-bottom:12px;position:relative;overflow:hidden;
-  transition:all .3s cubic-bezier(.4,0,.2,1);cursor:pointer;}
-.merchant-card:hover{transform:translateY(-2px);border-color:rgba(74,222,128,.3);
-  box-shadow:0 8px 24px rgba(0,0,0,.4);}
-.merchant-header{display:flex;gap:14px;margin-bottom:12px;}
-.merchant-logo{width:56px;height:56px;background:linear-gradient(135deg,rgba(74,222,128,.15),rgba(34,197,94,.1));
-  border:1px solid rgba(74,222,128,.2);border-radius:14px;display:flex;
-  align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
-.merchant-info{flex:1;}
-.merchant-name{font-size:15px;font-weight:700;color:var(--text-pri);margin-bottom:4px;}
-.merchant-category{font-size:10px;color:var(--text-muted);text-transform:uppercase;
-  letter-spacing:.6px;margin-bottom:6px;}
-.merchant-rating{display:flex;align-items:center;gap:6px;}
-.stars{color:var(--gold);font-size:12px;}
-.rating-count{font-size:10px;color:var(--text-muted);}
-.merchant-offer{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);
-  border-radius:12px;padding:10px 12px;margin-bottom:12px;}
-.offer-text{font-size:12px;font-weight:600;color:var(--text-pri);margin-bottom:2px;}
-.offer-desc{font-size:10px;color:var(--text-muted);}
-.merchant-actions{display:flex;gap:8px;}
-.merchant-btn{flex:1;padding:10px;border-radius:10px;font-size:12px;font-weight:600;
-  cursor:pointer;transition:all .2s;text-align:center;}
-.merchant-btn.primary{background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);
-  color:var(--leaf-light);}
-.merchant-btn.primary:hover{background:rgba(74,222,128,.18);transform:translateY(-1px);}
-.merchant-btn.secondary{background:rgba(255,255,255,.03);border:1px solid var(--border);
-  color:var(--text-muted);}
-.merchant-btn.secondary:hover{border-color:rgba(74,222,128,.2);color:var(--text-pri);}
-.merchant-stats{display:flex;gap:12px;padding:12px;background:rgba(255,255,255,.02);
-  border-radius:12px;margin-top:12px;}
-.merchant-stat{flex:1;text-align:center;}
-.merchant-stat-value{font-size:16px;font-weight:700;color:var(--leaf-light);display:block;}
-.merchant-stat-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;}
-
-/* ── Rewards Page ── */
-.rewards-section{margin:20px 20px 0;}
-.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:0 4px;}
-.view-all-btn{font-size:12px;color:var(--leaf-light);font-weight:600;cursor:pointer;
-  display:flex;align-items:center;gap:4px;transition:transform .2s;}
-.view-all-btn:hover{transform:translateX(2px);}
-.rewards-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.reward-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;
-  padding:16px;position:relative;overflow:hidden;cursor:pointer;
-  transition:all .3s cubic-bezier(.4,0,.2,1);}
-.reward-card:hover{transform:translateY(-4px);border-color:rgba(74,222,128,.3);
-  box-shadow:0 8px 24px rgba(0,0,0,.4);}
-.reward-card.locked{opacity:.6;}
-.reward-card.locked::after{content:'🔒';position:absolute;top:12px;right:12px;font-size:16px;opacity:.5;}
-.reward-icon{font-size:32px;margin-bottom:8px;display:block;filter:drop-shadow(0 0 8px rgba(74,222,128,.3));}
-.reward-title{font-size:13px;font-weight:600;color:var(--text-pri);margin-bottom:4px;}
-.reward-desc{font-size:10px;color:var(--text-muted);margin-bottom:8px;line-height:1.4;}
-.reward-cost{display:inline-flex;align-items:center;gap:4px;background:rgba(251,191,36,.12);
-  border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:4px 8px;font-size:11px;
-  font-weight:700;color:var(--gold);}
-
-/* ── Investment Cards ── */
-.investment-card{background:linear-gradient(145deg,rgba(74,222,128,.08),rgba(34,197,94,.05));
-  border:1px solid rgba(74,222,128,.2);border-radius:18px;padding:20px;
-  margin-bottom:14px;position:relative;overflow:hidden;cursor:pointer;
-  transition:all .3s cubic-bezier(.4,0,.2,1);}
-.investment-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4);}
-.investment-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
-  background:radial-gradient(circle,rgba(74,222,128,.1) 0%,transparent 70%);}
-.investment-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
-.investment-title{font-size:16px;font-weight:700;color:var(--text-pri);margin-bottom:4px;}
-.investment-subtitle{font-size:11px;color:var(--text-muted);}
-.investment-badge{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);
-  border-radius:10px;padding:6px 10px;font-size:11px;font-weight:700;color:var(--gold);
-  white-space:nowrap;flex-shrink:0;}
-.investment-details{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
-.investment-detail{background:rgba(0,0,0,.2);border-radius:10px;padding:10px;text-align:center;}
-.investment-detail-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;
-  letter-spacing:.5px;margin-bottom:4px;}
-.investment-detail-value{font-size:15px;font-weight:700;color:var(--leaf-light);}
-.investment-cta{background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.35);
-  border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:all .2s;}
-.investment-cta:hover{background:rgba(74,222,128,.22);transform:translateY(-2px);}
-.investment-cta-text{font-size:13px;font-weight:700;color:var(--leaf-light);}
-
-/* ── Detail Modal ── */
-.detail-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);backdrop-filter:blur(10px);
-  z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;
-  opacity:0;pointer-events:none;transition:opacity .3s cubic-bezier(.4,0,.2,1);}
-.detail-modal.open{opacity:1;pointer-events:all;}
-.detail-modal-content{background:var(--bg-card);border:1px solid var(--border);
-  border-radius:24px;width:100%;max-width:400px;max-height:80vh;overflow-y:auto;
-  padding:24px;transform:scale(.9);transition:transform .3s cubic-bezier(.4,0,.2,1);}
-.detail-modal.open .detail-modal-content{transform:scale(1);}
-.detail-modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
-.detail-modal-icon{font-size:48px;margin-bottom:12px;}
-.detail-modal-title{font-size:20px;font-weight:700;color:var(--text-pri);margin-bottom:6px;}
-.detail-modal-subtitle{font-size:13px;color:var(--text-muted);margin-bottom:16px;}
-.detail-modal-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.05);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-  font-size:20px;color:var(--text-muted);transition:all .2s;flex-shrink:0;}
-.detail-modal-close:hover{background:rgba(255,255,255,.1);transform:rotate(90deg);}
-.detail-section{margin-bottom:20px;}
-.detail-section-title{font-size:12px;color:var(--text-muted);text-transform:uppercase;
-  letter-spacing:.8px;margin-bottom:10px;font-weight:600;}
-.detail-section-content{font-size:14px;color:var(--text-pri);line-height:1.6;}
-.detail-feature-list{display:flex;flex-direction:column;gap:8px;}
-.detail-feature{display:flex;align-items:flex-start;gap:8px;padding:8px;
-  background:rgba(74,222,128,.05);border-radius:10px;}
-.detail-feature-icon{flex-shrink:0;font-size:18px;}
-.detail-feature-text{font-size:13px;color:var(--text-pri);}
-.detail-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
-.detail-stat{background:rgba(255,255,255,.03);border-radius:12px;padding:12px;text-align:center;}
-.detail-stat-value{font-size:18px;font-weight:700;color:var(--leaf-light);display:block;margin-bottom:4px;}
-.detail-stat-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;}
-.detail-actions{display:flex;gap:10px;margin-top:4px;}
-.detail-btn{flex:1;padding:14px;border-radius:12px;font-size:14px;font-weight:600;
-  cursor:pointer;transition:all .2s;text-align:center;}
-.detail-btn.primary{background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.35);
-  color:var(--leaf-light);}
-.detail-btn.primary:hover{background:rgba(74,222,128,.22);transform:translateY(-2px);}
-.detail-btn.primary.disabled{opacity:.4;cursor:not-allowed;}
-.detail-btn.primary.disabled:hover{transform:none;}
-.detail-btn.secondary{background:rgba(255,255,255,.03);border:1px solid var(--border);
-  color:var(--text-muted);}
-.detail-btn.secondary:hover{border-color:rgba(74,222,128,.2);}
-.claimed-badge{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);
-  border-radius:12px;padding:10px 16px;text-align:center;margin-bottom:16px;}
-.claimed-badge-text{font-size:13px;font-weight:600;color:var(--gold);}
-
-/* ── Points animation ── */
-@keyframes pointsEarned{
-  0%{transform:translateY(0) scale(1);opacity:1;}
-  100%{transform:translateY(-100px) scale(1.5);opacity:0;}
-}
-.points-floating{position:fixed;font-size:24px;font-weight:800;color:var(--gold);
-  pointer-events:none;z-index:9999;
-  animation:pointsEarned 1.5s cubic-bezier(.4,0,.2,1) forwards;
-  filter:drop-shadow(0 0 12px rgba(251,191,36,.6));}
-
-/* ── Page bottom padding ── */
-.page{padding-bottom:90px;}
-
-/* ══════════════════════════════════════
-   AUTH SCREEN
-══════════════════════════════════════ */
-#authScreen{
-  position:fixed;inset:0;z-index:10000;
-  background:var(--bg-deep);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:28px 28px 48px;
-  transition:opacity .4s, transform .4s;}
-#authScreen.hidden{opacity:0;transform:translateY(-20px);pointer-events:none;}
-
-.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.auth-logo-icon{width:52px;height:52px;background:linear-gradient(135deg,#16a34a,#4ade80);
-  border-radius:16px;display:flex;align-items:center;justify-content:center;
-  font-size:28px;box-shadow:0 0 28px rgba(74,222,128,.45);}
-.auth-logo-text{font-family:'Fraunces',serif;font-size:32px;font-weight:700;
-  background:linear-gradient(90deg,#4ade80,#86efac);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.auth-tagline{font-size:13px;color:var(--text-muted);margin-bottom:36px;text-align:center;}
-
-.auth-tabs{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--border);
-  border-radius:14px;padding:4px;gap:4px;margin-bottom:28px;width:100%;max-width:360px;}
-.auth-tab{flex:1;padding:10px;border-radius:10px;font-size:14px;font-weight:600;
-  color:var(--text-muted);cursor:pointer;text-align:center;transition:all .2s;border:none;background:none;}
-.auth-tab.active{background:rgba(74,222,128,.15);color:var(--leaf-light);
-  border:1px solid rgba(74,222,128,.3);}
-
-.auth-form{width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px;}
-.auth-field{display:flex;flex-direction:column;gap:6px;}
-.auth-label{font-size:12px;color:var(--text-muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
-.auth-input{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;
-  padding:14px 16px;font-size:15px;color:var(--text-pri);font-family:'DM Sans',sans-serif;
-  outline:none;transition:border-color .2s;width:100%;}
-.auth-input:focus{border-color:rgba(74,222,128,.5);}
-.auth-input::placeholder{color:var(--text-muted);}
-.auth-error{font-size:12px;color:var(--red);min-height:16px;padding:0 4px;}
-
-.auth-btn{background:linear-gradient(135deg,#16a34a,#4ade80);border:none;border-radius:14px;
-  padding:16px;font-size:16px;font-weight:700;color:#050e08;cursor:pointer;
-  transition:all .2s;box-shadow:0 4px 20px rgba(74,222,128,.3);margin-top:4px;}
-.auth-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(74,222,128,.4);}
-.auth-btn:active{transform:translateY(0);}
-
-.auth-footer{margin-top:24px;font-size:12px;color:var(--text-muted);text-align:center;line-height:1.6;}
-</style>
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/pages.css">
 </head>
 <body>
 
@@ -703,6 +68,9 @@ body::before{content:'';position:fixed;inset:0;background:
   <div class="auth-footer">Your data is stored locally on this device only.<br>No account info is sent to any server.</div>
 </div>
 
+<!-- ══════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════ -->
 <div class="app" id="mainApp" style="display:none;">
   <div class="pages">
 
@@ -711,10 +79,7 @@ body::before{content:'';position:fixed;inset:0;background:
     ══════════════════════════════════════ -->
     <div class="page active" id="homePage">
       <div class="header">
-        <div class="logo">
-          <div class="logo-icon">🌱</div>
-          CarbonCash
-        </div>
+        <div class="logo"><div class="logo-icon">🌱</div>CarbonCash</div>
         <button class="qr-btn" id="qrBtn" title="Scan QR Code">📷</button>
       </div>
 
@@ -803,13 +168,13 @@ body::before{content:'';position:fixed;inset:0;background:
       </div>
 
       <!-- Weekly Goal Progress -->
-      <div class="weekly-card" style="margin-top: 24px;">
+      <div class="weekly-card" style="margin-top:24px;">
         <div class="weekly-header">
           <div class="weekly-title">Remaining Budget</div>
           <div class="weekly-badge" id="weeklyBadge">On Track</div>
         </div>
         <div class="weekly-progress">
-          <div class="weekly-progress-bar" id="weeklyProgressBar" style="width: 100%;"></div>
+          <div class="weekly-progress-bar" id="weeklyProgressBar" style="width:100%;"></div>
         </div>
         <div class="weekly-stats">
           <div class="weekly-stat">
@@ -870,26 +235,19 @@ body::before{content:'';position:fixed;inset:0;background:
     ══════════════════════════════════════ -->
     <div class="page" id="transactionsPage">
       <div class="header">
-        <div class="logo">
-          <div class="logo-icon">🌱</div>
-          CarbonCash
-        </div>
+        <div class="logo"><div class="logo-icon">🌱</div>CarbonCash</div>
         <button class="qr-btn" id="qrBtn2" title="Scan QR Code">📷</button>
       </div>
-
       <div class="greeting">
         <div class="sub">All Your Purchases</div>
         <div class="name">Transactions</div>
       </div>
-
-      <!-- Filter tabs -->
       <div class="filter-tabs">
         <button class="filter-tab active" data-filter="all">All</button>
         <button class="filter-tab" data-filter="high">High Impact</button>
         <button class="filter-tab" data-filter="medium">Medium</button>
         <button class="filter-tab" data-filter="low">Low Impact</button>
       </div>
-
       <div class="section-title">This Week</div>
       <div class="txn-list" id="transactionsTxnList">
         <div id="txnsEmptyState" style="text-align:center;padding:40px 20px;color:var(--text-muted);">
@@ -906,19 +264,14 @@ body::before{content:'';position:fixed;inset:0;background:
     ══════════════════════════════════════ -->
     <div class="page" id="insightsPage">
       <div class="header">
-        <div class="logo">
-          <div class="logo-icon">🌱</div>
-          CarbonCash
-        </div>
+        <div class="logo"><div class="logo-icon">🌱</div>CarbonCash</div>
         <button class="qr-btn" id="qrBtn3" title="Scan QR Code">📷</button>
       </div>
-
       <div class="greeting">
         <div class="sub">Environmental Analytics</div>
         <div class="name">Insights</div>
       </div>
 
-      <!-- Monthly Overview -->
       <div class="insight-card">
         <div class="insight-header">
           <div class="insight-title">Weekly Carbon Footprint</div>
@@ -932,7 +285,6 @@ body::before{content:'';position:fixed;inset:0;background:
         </div>
       </div>
 
-      <!-- Category Breakdown -->
       <div class="section-title">Carbon by Category</div>
       <div class="category-list" id="categoryList">
         <div style="text-align:center;padding:32px 20px;color:var(--text-muted);">
@@ -941,7 +293,6 @@ body::before{content:'';position:fixed;inset:0;background:
         </div>
       </div>
 
-      <!-- Comparison Card -->
       <div class="section-title">Your Impact</div>
       <div class="comparison-card" id="comparisonCard">
         <div class="comp-header">
@@ -963,7 +314,6 @@ body::before{content:'';position:fixed;inset:0;background:
         <div class="comp-tip" id="compTip">🌟 Start adding transactions to see how you compare!</div>
       </div>
 
-      <!-- Achievements -->
       <div class="section-title">Achievements</div>
       <div class="achievement-grid">
         <div class="achievement-card" id="achEcoStarter">
@@ -995,13 +345,9 @@ body::before{content:'';position:fixed;inset:0;background:
     ══════════════════════════════════════ -->
     <div class="page" id="profilePage">
       <div class="header">
-        <div class="logo">
-          <div class="logo-icon">🌱</div>
-          CarbonCash
-        </div>
+        <div class="logo"><div class="logo-icon">🌱</div>CarbonCash</div>
         <button class="qr-btn" id="qrBtn4" title="Scan QR Code">📷</button>
       </div>
-
       <div class="greeting">
         <div class="sub">Your Account</div>
         <div class="name">Profile</div>
@@ -1014,8 +360,8 @@ body::before{content:'';position:fixed;inset:0;background:
           </svg>
         </div>
         <div class="profile-info">
-          <div class="profile-name">Priya Sharma</div>
-          <div class="profile-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5a2a2833233b1a393b28383534393b2932743334">[email&#160;protected]</a></div>
+          <div class="profile-name">User</div>
+          <div class="profile-email">@username</div>
         </div>
         <button class="edit-btn" id="editProfileBtn">Edit</button>
       </div>
@@ -1075,13 +421,9 @@ body::before{content:'';position:fixed;inset:0;background:
     ══════════════════════════════════════ -->
     <div class="page" id="merchantsPage">
       <div class="header">
-        <div class="logo">
-          <div class="logo-icon">🏪</div>
-          Eco Merchants
-        </div>
-        <button class="qr-btn" id="qrBtn3" title="Scan QR Code">📷</button>
+        <div class="logo"><div class="logo-icon">🏪</div>Eco Merchants</div>
+        <button class="qr-btn" id="qrBtn3b" title="Scan QR Code">📷</button>
       </div>
-
       <div class="greeting">
         <div class="sub">Discover sustainable partners</div>
         <div class="name" style="font-size:22px;">Earn rewards for green purchases</div>
@@ -1099,10 +441,7 @@ body::before{content:'';position:fixed;inset:0;background:
               <div class="merchant-rating"><span class="stars">⭐⭐⭐⭐⭐</span><span class="rating-count">(2.4k)</span></div>
             </div>
           </div>
-          <div class="merchant-offer">
-            <div class="offer-text">🎁 Earn 30 GP per ₹100 spent</div>
-            <div class="offer-desc">Plus 15% discount with 200+ GP</div>
-          </div>
+          <div class="merchant-offer"><div class="offer-text">🎁 Earn 30 GP per ₹100 spent</div><div class="offer-desc">Plus 15% discount with 200+ GP</div></div>
           <div class="merchant-stats">
             <div class="merchant-stat"><span class="merchant-stat-value">30</span><span class="merchant-stat-label">GP/Purchase</span></div>
             <div class="merchant-stat"><span class="merchant-stat-value">15%</span><span class="merchant-stat-label">Max Discount</span></div>
@@ -1123,10 +462,7 @@ body::before{content:'';position:fixed;inset:0;background:
               <div class="merchant-rating"><span class="stars">⭐⭐⭐⭐⭐</span><span class="rating-count">(1.8k)</span></div>
             </div>
           </div>
-          <div class="merchant-offer">
-            <div class="offer-text">🎁 Earn 5 GP per charge session</div>
-            <div class="offer-desc">Free charging with 150+ GP</div>
-          </div>
+          <div class="merchant-offer"><div class="offer-text">🎁 Earn 5 GP per charge session</div><div class="offer-desc">Free charging with 150+ GP</div></div>
           <div class="merchant-stats">
             <div class="merchant-stat"><span class="merchant-stat-value">5</span><span class="merchant-stat-label">GP/Session</span></div>
             <div class="merchant-stat"><span class="merchant-stat-value">100%</span><span class="merchant-stat-label">Free Charge</span></div>
@@ -1147,10 +483,7 @@ body::before{content:'';position:fixed;inset:0;background:
               <div class="merchant-rating"><span class="stars">⭐⭐⭐⭐☆</span><span class="rating-count">(3.2k)</span></div>
             </div>
           </div>
-          <div class="merchant-offer">
-            <div class="offer-text">🎁 Earn 2 GP per ₹10 spent</div>
-            <div class="offer-desc">10% discount on organic produce with 100+ GP</div>
-          </div>
+          <div class="merchant-offer"><div class="offer-text">🎁 Earn 2 GP per ₹10 spent</div><div class="offer-desc">10% discount on organic produce with 100+ GP</div></div>
           <div class="merchant-stats">
             <div class="merchant-stat"><span class="merchant-stat-value">20</span><span class="merchant-stat-label">GP/Week Avg</span></div>
             <div class="merchant-stat"><span class="merchant-stat-value">10%</span><span class="merchant-stat-label">Discount</span></div>
@@ -1171,10 +504,7 @@ body::before{content:'';position:fixed;inset:0;background:
               <div class="merchant-rating"><span class="stars">⭐⭐⭐⭐⭐</span><span class="rating-count">(5.1k)</span></div>
             </div>
           </div>
-          <div class="merchant-offer">
-            <div class="offer-text">🎁 Earn 3 GP per ride</div>
-            <div class="offer-desc">Monthly pass discount with 80+ GP</div>
-          </div>
+          <div class="merchant-offer"><div class="offer-text">🎁 Earn 3 GP per ride</div><div class="offer-desc">Monthly pass discount with 80+ GP</div></div>
           <div class="merchant-stats">
             <div class="merchant-stat"><span class="merchant-stat-value">3</span><span class="merchant-stat-label">GP/Ride</span></div>
             <div class="merchant-stat"><span class="merchant-stat-value">20%</span><span class="merchant-stat-label">Pass Discount</span></div>
@@ -1195,10 +525,7 @@ body::before{content:'';position:fixed;inset:0;background:
               <div class="merchant-rating"><span class="stars">⭐⭐⭐⭐⭐</span><span class="rating-count">(4.3k)</span></div>
             </div>
           </div>
-          <div class="merchant-offer">
-            <div class="offer-text">🎁 Earn 10 GP per recycling drop-off</div>
-            <div class="offer-desc">Bonus rewards for electronics recycling</div>
-          </div>
+          <div class="merchant-offer"><div class="offer-text">🎁 Earn 10 GP per recycling drop-off</div><div class="offer-desc">Bonus rewards for electronics recycling</div></div>
           <div class="merchant-stats">
             <div class="merchant-stat"><span class="merchant-stat-value">10</span><span class="merchant-stat-label">GP/Drop-off</span></div>
             <div class="merchant-stat"><span class="merchant-stat-value">50</span><span class="merchant-stat-label">Bonus GP</span></div>
@@ -1219,13 +546,9 @@ body::before{content:'';position:fixed;inset:0;background:
     ══════════════════════════════════════ -->
     <div class="page" id="rewardsPage">
       <div class="header">
-        <div class="logo">
-          <div class="logo-icon">🎁</div>
-          Rewards
-        </div>
-        <button class="qr-btn" id="qrBtn4" title="Scan QR Code">📷</button>
+        <div class="logo"><div class="logo-icon">🎁</div>Rewards</div>
+        <button class="qr-btn" id="qrBtn4b" title="Scan QR Code">📷</button>
       </div>
-
       <div class="greeting">
         <div class="sub">Your Green Points</div>
         <div class="name" style="font-size:32px;"><span id="rewardsGP">0</span> GP</div>
@@ -1332,30 +655,12 @@ body::before{content:'';position:fixed;inset:0;background:
 
   <!-- Bottom Navigation -->
   <div class="bottom-nav">
-    <button class="nav-item active" data-page="homePage">
-      <div class="nav-icon">🏠</div>
-      <div class="nav-label">Home</div>
-    </button>
-    <button class="nav-item" data-page="transactionsPage">
-      <div class="nav-icon">💳</div>
-      <div class="nav-label">Activity</div>
-    </button>
-    <button class="nav-item" data-page="merchantsPage">
-      <div class="nav-icon">🏪</div>
-      <div class="nav-label">Merchants</div>
-    </button>
-    <button class="nav-item" data-page="rewardsPage">
-      <div class="nav-icon">🎁</div>
-      <div class="nav-label">Rewards</div>
-    </button>
-    <button class="nav-item" data-page="insightsPage">
-      <div class="nav-icon">📊</div>
-      <div class="nav-label">Insights</div>
-    </button>
-    <button class="nav-item" data-page="profilePage">
-      <div class="nav-icon">👤</div>
-      <div class="nav-label">Profile</div>
-    </button>
+    <button class="nav-item active" data-page="homePage"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></button>
+    <button class="nav-item" data-page="transactionsPage"><div class="nav-icon">💳</div><div class="nav-label">Activity</div></button>
+    <button class="nav-item" data-page="merchantsPage"><div class="nav-icon">🏪</div><div class="nav-label">Merchants</div></button>
+    <button class="nav-item" data-page="rewardsPage"><div class="nav-icon">🎁</div><div class="nav-label">Rewards</div></button>
+    <button class="nav-item" data-page="insightsPage"><div class="nav-icon">📊</div><div class="nav-label">Insights</div></button>
+    <button class="nav-item" data-page="profilePage"><div class="nav-icon">👤</div><div class="nav-label">Profile</div></button>
   </div>
 </div>
 
@@ -1365,9 +670,7 @@ body::before{content:'';position:fixed;inset:0;background:
     <div class="modal-handle"></div>
     <div class="modal-content">
       <div class="modal-header">
-        <div class="modal-icon-big high" style="background:rgba(248,113,113,.15);border:1.5px solid rgba(248,113,113,.35);">
-          <span>🗑️</span>
-        </div>
+        <div class="modal-icon-big high" style="background:rgba(248,113,113,.15);border:1.5px solid rgba(248,113,113,.35);"><span>🗑️</span></div>
         <div class="modal-info">
           <h3 style="color:var(--red);">Delete All Data?</h3>
           <div class="cat">This cannot be undone</div>
@@ -1378,9 +681,7 @@ body::before{content:'';position:fixed;inset:0;background:
       </p>
       <div style="display:flex;gap:12px;margin-top:8px;">
         <button class="modal-close" id="deleteCancelBtn" style="background:rgba(255,255,255,.05);box-shadow:none;flex:1;font-size:14px;">Cancel</button>
-        <button id="deleteConfirmBtn" style="flex:2;padding:16px;border-radius:14px;border:none;background:rgba(248,113,113,.2);border:1.5px solid rgba(248,113,113,.4);color:#f87171;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;">
-          Yes, Delete Everything
-        </button>
+        <button id="deleteConfirmBtn" style="flex:2;padding:16px;border-radius:14px;border:none;background:rgba(248,113,113,.2);border:1.5px solid rgba(248,113,113,.4);color:#f87171;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;">Yes, Delete Everything</button>
       </div>
     </div>
   </div>
@@ -1389,7 +690,7 @@ body::before{content:'';position:fixed;inset:0;background:
 <!-- Toast Notification Container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Detail Info Modal -->
+<!-- Detail Info Modal (rewards / merchants) -->
 <div class="detail-modal" id="detailModal">
   <div class="detail-modal-content">
     <div class="detail-modal-header">
@@ -1400,9 +701,7 @@ body::before{content:'';position:fixed;inset:0;background:
       </div>
       <div class="detail-modal-close" onclick="closeDetailModal()">✕</div>
     </div>
-    <div id="detailClaimedBadge" class="claimed-badge" style="display:none;">
-      <div class="claimed-badge-text">✓ Already Claimed</div>
-    </div>
+    <div id="detailClaimedBadge" class="claimed-badge" style="display:none;"><div class="claimed-badge-text">✓ Already Claimed</div></div>
     <div id="detailStatsSection" class="detail-stats" style="display:none;"></div>
     <div class="detail-section">
       <div class="detail-section-title">Description</div>
@@ -1426,41 +725,21 @@ body::before{content:'';position:fixed;inset:0;background:
     <div class="modal-handle"></div>
     <div class="modal-content">
       <div class="modal-header">
-        <div class="modal-icon-big high" id="modalIconBig">
-          <span id="modalEmoji">☕</span>
-        </div>
+        <div class="modal-icon-big high" id="modalIconBig"><span id="modalEmoji">☕</span></div>
         <div class="modal-info">
-          <h3 id="modalName">Starbucks Coffee</h3>
-          <div class="cat" id="modalCat">Eating Places · MCC 5812</div>
+          <h3 id="modalName">Merchant</h3>
+          <div class="cat" id="modalCat">Category · MCC</div>
         </div>
       </div>
-
-      <div class="modal-row">
-        <div class="label">Transaction Amount</div>
-        <div class="value" id="modalAmount">₹450</div>
-      </div>
-      <div class="modal-row">
-        <div class="label">Carbon Footprint</div>
-        <div class="value carbon" id="modalCarbon">0.8 kg CO₂</div>
-      </div>
-      <div class="modal-row">
-        <div class="label">Transaction Date</div>
-        <div class="value" id="modalDate">Feb 14, 2026 · 2:34 PM</div>
-      </div>
-
+      <div class="modal-row"><div class="label">Transaction Amount</div><div class="value" id="modalAmount">₹0</div></div>
+      <div class="modal-row"><div class="label">Carbon Footprint</div><div class="value carbon" id="modalCarbon">0 kg CO₂</div></div>
+      <div class="modal-row"><div class="label">Transaction Date</div><div class="value" id="modalDate">—</div></div>
       <div class="modal-divider"></div>
-
-      <div class="carbon-breakdown" id="carbonBreakdown">
-        <div class="breakdown-title">Carbon Breakdown</div>
-      </div>
-
+      <div class="carbon-breakdown" id="carbonBreakdown"><div class="breakdown-title">Carbon Breakdown</div></div>
       <div class="tip-box">
         <div class="tip-icon">💡</div>
-        <div class="tip-text" id="modalTip">
-          <strong>Eco Tip:</strong> Small choices add up. Consider greener alternatives to reduce your carbon footprint.
-        </div>
+        <div class="tip-text" id="modalTip"><strong>Eco Tip:</strong> Small choices add up.</div>
       </div>
-
       <button class="modal-close" id="modalCloseBtn">Close</button>
     </div>
   </div>
@@ -1472,15 +751,9 @@ body::before{content:'';position:fixed;inset:0;background:
     <div class="modal-handle"></div>
     <div class="modal-content">
       <div class="modal-header">
-        <div class="modal-icon-big" style="background:linear-gradient(135deg,rgba(74,222,128,.2),rgba(34,197,94,.2));border:1.5px solid rgba(74,222,128,.35);">
-          <span>🎯</span>
-        </div>
-        <div class="modal-info">
-          <h3>Set Weekly Goal</h3>
-          <div class="cat">Choose your carbon limit</div>
-        </div>
+        <div class="modal-icon-big" style="background:linear-gradient(135deg,rgba(74,222,128,.2),rgba(34,197,94,.2));border:1.5px solid rgba(74,222,128,.35);"><span>🎯</span></div>
+        <div class="modal-info"><h3>Set Weekly Goal</h3><div class="cat">Choose your carbon limit</div></div>
       </div>
-
       <div style="margin:20px 0;">
         <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Target Carbon Footprint (kg CO₂)</div>
         <input type="number" id="goalInput" class="goal-input" min="1" max="100" step="0.5" value="8.0" placeholder="8.0">
@@ -1490,7 +763,6 @@ body::before{content:'';position:fixed;inset:0;background:
           <button class="goal-suggest-btn" data-goal="12">12 kg – Flexible</button>
         </div>
       </div>
-
       <div style="display:flex;gap:12px;">
         <button class="modal-close" id="goalCancelBtn" style="background:rgba(255,255,255,.05);box-shadow:none;flex:1;">Cancel</button>
         <button class="modal-close" id="goalSaveBtn" style="flex:2;">Save Goal</button>
@@ -1499,1464 +771,21 @@ body::before{content:'';position:fixed;inset:0;background:
   </div>
 </div>
 
-<script>
-// ══════════════════════════════════════
-// CARBON PARTICLES
-// ══════════════════════════════════════
-function initCarbonParticles() {
-  const carbonField = document.getElementById('carbonField');
-  if (carbonField.children.length > 0) return; // already done
-  const carbonSymbols = ['CO₂', '🌿', '♻️', '🌍'];
-  for(let i = 0; i < 15; i++) {
-    const p = document.createElement('div');
-    p.className = 'carbon-particle';
-    p.textContent = carbonSymbols[Math.floor(Math.random() * carbonSymbols.length)];
-    p.style.left = Math.random() * 100 + '%';
-    p.style.fontSize = (Math.random() * 12 + 16) + 'px';
-    p.style.animationDuration = (Math.random() * 20 + 25) + 's';
-    p.style.animationDelay = Math.random() * 15 + 's';
-    p.style.color = 'rgba(74,222,128,0.2)';
-    carbonField.appendChild(p);
-  }
-}
+<!-- ══════════════════════════════════════
+     SCRIPTS (load order matters)
+     1. state    – variables & storage helpers
+     2. auth     – login/signup (uses state, refs UI)
+     3. transactions – txn logic & modal
+     4. insights – charts, goals, achievements
+     5. rewards  – reward/merchant data & modals
+     6. app      – navigation, QR, toast, CSV, delete
+══════════════════════════════════════ -->
+<script src="js/state.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/transactions.js"></script>
+<script src="js/insights.js"></script>
+<script src="js/rewards.js"></script>
+<script src="js/app.js"></script>
 
-// ══════════════════════════════════════
-// AUTH  +  PER-USER STATE
-// ══════════════════════════════════════
-const USERS_KEY   = 'carboncash_users';   // stores all registered user credentials
-let   currentUser = null;                  // { username, name } of logged-in user
-let   LS_KEY      = '';                    // set per-user on login
-
-// ── User registry helpers ──
-function getUsers() {
-  try { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); } catch(e) { return {}; }
-}
-function saveUsers(users) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-// ── Auth tab switch ──
-function switchAuthTab(tab) {
-  document.getElementById('loginForm').style.display   = tab === 'login'  ? 'flex' : 'none';
-  document.getElementById('signupForm').style.display  = tab === 'signup' ? 'flex' : 'none';
-  document.getElementById('loginTab').classList.toggle('active',  tab === 'login');
-  document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
-  document.getElementById('loginError').textContent  = '';
-  document.getElementById('signupError').textContent = '';
-}
-
-// ── Login handler ──
-function handleLogin() {
-  const username = document.getElementById('loginUsername').value.trim().toLowerCase();
-  const password = document.getElementById('loginPassword').value;
-  const errEl    = document.getElementById('loginError');
-
-  if (!username || !password) { errEl.textContent = 'Please fill in all fields.'; return; }
-
-  const users = getUsers();
-  if (!users[username]) { errEl.textContent = 'Username not found. Please sign up first.'; return; }
-  if (users[username].password !== btoa(password)) { errEl.textContent = 'Incorrect password.'; return; }
-
-  errEl.textContent = '';
-  loginUser(username, users[username].name);
-}
-
-// ── Sign up handler ──
-function handleSignup() {
-  const name     = document.getElementById('signupName').value.trim();
-  const username = document.getElementById('signupUsername').value.trim().toLowerCase();
-  const password = document.getElementById('signupPassword').value;
-  const confirm  = document.getElementById('signupConfirm').value;
-  const errEl    = document.getElementById('signupError');
-
-  if (!name || !username || !password || !confirm) { errEl.textContent = 'Please fill in all fields.'; return; }
-  if (username.length < 3)   { errEl.textContent = 'Username must be at least 3 characters.'; return; }
-  if (password.length < 6)   { errEl.textContent = 'Password must be at least 6 characters.'; return; }
-  if (password !== confirm)  { errEl.textContent = 'Passwords do not match.'; return; }
-
-  const users = getUsers();
-  if (users[username]) { errEl.textContent = 'Username already taken. Try another.'; return; }
-
-  users[username] = { name, password: btoa(password) };
-  saveUsers(users);
-  errEl.textContent = '';
-  loginUser(username, name);
-}
-
-// ── Core login: set user, load their data, show app ──
-function loginUser(username, name) {
-  currentUser = { username, name };
-  LS_KEY = 'carboncash_v1_' + username;   // per-user key
-
-  // Store session so refresh stays logged in
-  sessionStorage.setItem('carboncash_session', JSON.stringify(currentUser));
-
-  // Hide auth, show app
-  document.getElementById('authScreen').classList.add('hidden');
-  document.getElementById('mainApp').style.display = 'flex';
-
-  // Restore this user's saved state
-  restoreUserState();
-
-  // Update all name/username displays in the app
-  updateUserDisplays();
-
-  // Boot UI
-  setTimeout(() => {
-    initCarbonParticles();
-    if (allTransactions.length > 0) refreshUIFromState();
-  }, 50);
-}
-
-// ── Logout: clear session, reset state, show auth ──
-function logoutUser() {
-  saveState();  // save before leaving
-  sessionStorage.removeItem('carboncash_session');
-  currentUser = null;
-  LS_KEY = '';
-
-  // Reset all in-memory state
-  allTransactions  = [];
-  greenPoints      = 0;
-  weeklyGoal       = 8.0;
-  goalStatus       = 'active';
-  transactionCount = 0;
-  claimedRewards   = new Set();
-
-  // Reset UI
-  ['homeTxnList','transactionsTxnList'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.innerHTML = '';
-  });
-
-  // Clear login inputs
-  document.getElementById('loginUsername').value = '';
-  document.getElementById('loginPassword').value = '';
-  document.getElementById('loginError').textContent = '';
-
-  document.getElementById('mainApp').style.display = 'none';
-  document.getElementById('authScreen').classList.remove('hidden');
-  switchAuthTab('login');
-}
-
-// ── Update name everywhere in the app ──
-function updateUserDisplays() {
-  const name = currentUser?.name || 'User';
-  const username = currentUser?.username || '';
-  // Profile page name & email
-  const nameEl = document.querySelector('.profile-name');
-  if (nameEl) nameEl.textContent = name;
-  const emailEl = document.querySelector('.profile-email');
-  if (emailEl) emailEl.textContent = '@' + username;
-}
-
-// ── Restore saved state for current user ──
-function restoreUserState() {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return;
-    const s = JSON.parse(raw);
-    if (s.allTransactions)           allTransactions  = s.allTransactions;
-    if (s.weeklyGoal)                weeklyGoal       = s.weeklyGoal;
-    if (s.greenPoints !== undefined) greenPoints      = s.greenPoints;
-    if (s.goalStatus)                goalStatus       = s.goalStatus;
-    if (s.transactionCount)          transactionCount = s.transactionCount;
-    if (s.claimedRewards)            claimedRewards   = new Set(s.claimedRewards);
-  } catch(e) { console.warn('State restore failed:', e); }
-}
-
-// ── Check if already logged in from this session ──
-(function checkSession() {
-  try {
-    const session = sessionStorage.getItem('carboncash_session');
-    if (session) {
-      const { username, name } = JSON.parse(session);
-      const users = getUsers();
-      if (users[username]) {
-        // Auto-login without showing auth screen
-        loginUser(username, name);
-        return;
-      }
-    }
-  } catch(e) {}
-  // No session — show auth screen (already visible by default)
-})();
-
-// ── STATE variables (populated on login) ──
-let allTransactions = [];
-let weeklyGoal      = 8.0;
-let greenPoints     = 0;
-let goalStatus      = 'active';
-let transactionCount = 0;
-let claimedRewards  = new Set();
-
-// ── CSV builder (single file, all data) ──
-function escapeCSV(val) {
-  if (val === null || val === undefined) return '';
-  const s = String(val);
-  return (s.includes(',') || s.includes('"') || s.includes('\n'))
-    ? '"' + s.replace(/"/g, '""') + '"' : s;
-}
-
-function buildCSV() {
-  const now        = new Date().toLocaleString('en-IN');
-  const totalCO2   = allTransactions.reduce((s, t) => s + t.carbon, 0).toFixed(2);
-  const totalSpend = allTransactions.reduce((s, t) => s + (t.amount || 0), 0);
-  const goalLabel  = goalStatus === 'success' ? 'Achieved' : goalStatus === 'failed' ? 'Failed' : 'Active';
-  const cats = {};
-  allTransactions.forEach(t => { cats[t.cat] = (cats[t.cat] || 0) + t.carbon; });
-
-  const rows = [
-    // header row describes all columns
-    ['section','field_or_id','value_or_date','col3','col4','col5','col6','col7','col8','col9','col10'],
-    // ── profile ──
-    ['profile','last_updated',       now],
-    ['profile','username',           currentUser?.username || ''],
-    ['profile','name',               currentUser?.name || ''],
-    ['profile','green_points',       greenPoints],
-    ['profile','weekly_goal_kg',     weeklyGoal.toFixed(1)],
-    ['profile','goal_status',        goalLabel],
-    ['profile','total_co2_kg',       totalCO2],
-    ['profile','total_spend_inr',    totalSpend],
-    ['profile','total_transactions', allTransactions.length],
-    ['profile','claimed_rewards',    [...claimedRewards].join('; ') || 'None'],
-    // ── category breakdown ──
-    ['category','category_name','co2_kg'],
-    ...Object.entries(cats).map(([cat, kg]) => ['category', cat, kg.toFixed(2)]),
-    // ── transactions ──
-    ['transaction','id','date','time','merchant','category','mcc','amount_inr','co2_kg','impact','gp_change','eco_tip'],
-    ...allTransactions.map(t => {
-      const base = Math.floor((t.amount || 0) / 100);
-      const gp   = t.impact === 'low' ? '+' + base * 6
-                 : t.impact === 'medium' ? '+' + base * 2
-                 : '-' + base * 4;
-      return ['transaction', t.id, t.date||'', t.time||'', t.name, t.cat,
-              t.mcc||'', t.amount||'', t.carbon.toFixed(2), t.impact, gp, t.tip||''];
-    }),
-  ];
-  return rows.map(r => r.map(escapeCSV).join(',')).join('\r\n');
-}
-
-// ── Save everything: JSON to localStorage + CSV blob to localStorage ──
-function saveState() {
-  if (!LS_KEY) return; // not logged in yet
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify({
-      allTransactions, weeklyGoal, greenPoints,
-      goalStatus, transactionCount,
-      claimedRewards: [...claimedRewards]
-    }));
-    localStorage.setItem(LS_KEY + '_csv', buildCSV());
-  } catch(e) { console.warn('Save failed:', e); }
-}
-
-// ── Download the single CSV (always the same filename so it overwrites) ──
-function downloadCSVFromStore() {
-  const content = localStorage.getItem(LS_KEY + '_csv') || buildCSV();
-  const blob    = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-  const url     = URL.createObjectURL(blob);
-  const a       = Object.assign(document.createElement('a'), {
-    href: url, download: 'carboncash_data.csv', style: 'display:none'
-  });
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-// ── Full UI refresh from restored state ──
-function refreshUIFromState() {
-  // Green points
-  document.getElementById('greenPoints').textContent = greenPoints;
-  const gpEl = document.getElementById('rewardsGP');
-  if (gpEl) gpEl.textContent = greenPoints;
-
-  // Re-render all transactions into both lists
-  const homeList = document.getElementById('homeTxnList');
-  const txnsList = document.getElementById('transactionsTxnList');
-  if (homeList) homeList.innerHTML = '';
-  if (txnsList) txnsList.innerHTML = '';
-
-  allTransactions.forEach(txn => {
-    const el = createTxnElement(txn);
-    if (homeList && homeList.children.length < 5) homeList.appendChild(el.cloneNode(true));
-    if (txnsList) txnsList.appendChild(el);
-  });
-
-  // Re-attach click handlers on restored txn items
-  document.querySelectorAll('.txn-item[data-txn]').forEach(item => {
-    item.addEventListener('click', () => {
-      const id  = item.getAttribute('data-txn');
-      const txn = allTransactions.find(t => t.id === id);
-      if (txn) showTransactionModal(txn);
-    });
-  });
-
-  // Refresh all stats panels
-  updateWeeklyCarbon();
-  updateCategoryBreakdown();
-  updateWeeklyChart();
-  updateComparisonCard();
-  updateAchievements();
-}
-
-// ── Save on every state mutation ──
-window.addEventListener('beforeunload', saveState);
-
-// ══════════════════════════════════════
-// MERCHANT DATA
-// ══════════════════════════════════════
-const sampleMerchants = [
-  { emoji:'☕', name:'Starbucks Coffee', cat:'Eating Places', mcc:'5812', amount:()=>Math.floor(Math.random()*300+200), carbonFactor:1.8, impact:'high',
-    tips:['Bring your own reusable cup to save ~0.10kg CO₂ per visit.','Choosing plant-based milk reduces emissions by up to 30%!'] },
-  { emoji:'🍔', name:"McDonald's", cat:'Fast Food', mcc:'5814', amount:()=>Math.floor(Math.random()*250+150), carbonFactor:1.5, impact:'medium',
-    tips:['Try a plant-based burger to cut your meal\'s carbon footprint by 50%.','Dining in uses fewer single-use plastics than takeaway.'] },
-  { emoji:'🛒', name:'DMart Grocery', cat:'Grocery Store', mcc:'5411', amount:()=>Math.floor(Math.random()*1000+500), carbonFactor:0.3, impact:'low',
-    tips:['Buying local and seasonal produce reduces supply chain emissions.','Bring reusable bags to eliminate plastic waste.'] },
-  { emoji:'⛽', name:'Indian Oil Petrol', cat:'Gas Station', mcc:'5541', amount:()=>Math.floor(Math.random()*1500+1000), carbonFactor:2.5, impact:'high',
-    tips:['Consider carpooling or public transit to halve your transport emissions.','EVs emit ~70% less CO₂ per km than petrol vehicles.'] },
-  { emoji:'🍕', name:"Domino's Pizza", cat:'Restaurant', mcc:'5812', amount:()=>Math.floor(Math.random()*400+300), carbonFactor:1.4, impact:'medium',
-    tips:['Vegetarian pizzas have roughly 40% lower carbon footprint.','Ordering in bulk for one delivery beats multiple small orders.'] },
-  { emoji:'👕', name:'Zara Fashion', cat:'Clothing Store', mcc:'5691', amount:()=>Math.floor(Math.random()*2000+1000), carbonFactor:0.8, impact:'high',
-    tips:['One garment produces ~2.1kg CO₂. Buying second-hand saves 80%.','Washing clothes in cold water cuts energy use by 90%.'] },
-  { emoji:'🎬', name:'PVR Cinemas', cat:'Entertainment', mcc:'7832', amount:()=>Math.floor(Math.random()*500+300), carbonFactor:0.4, impact:'low',
-    tips:['Cinema visits are one of the lower-impact entertainment choices.','Choosing nearby venues reduces your travel emissions.'] },
-  { emoji:'🏋️', name:'Cult.fit Gym', cat:'Health & Fitness', mcc:'7997', amount:()=>Math.floor(Math.random()*1500+1000), carbonFactor:0.2, impact:'low',
-    tips:['Working out at a gym has a lower footprint than driving to outdoor activities.','Ask about the gym\'s renewable energy usage!'] }
-];
-
-// ══════════════════════════════════════
-// PAGE NAVIGATION
-// ══════════════════════════════════════
-function navigateToPage(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  setTimeout(() => {
-    const pg = document.getElementById(pageId);
-    if (pg) pg.classList.add('active');
-  }, 50);
-  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-  const target = document.querySelector(`[data-page="${pageId}"]`);
-  if (target) target.classList.add('active');
-}
-
-function navigateTo(pageId) { navigateToPage(pageId); }
-
-document.querySelectorAll('.nav-item[data-page]').forEach(item => {
-  item.addEventListener('click', () => navigateToPage(item.getAttribute('data-page')));
-});
-
-// ══════════════════════════════════════
-// TRANSACTION GENERATION
-// ══════════════════════════════════════
-function generateTransaction() {
-  const merchant = sampleMerchants[Math.floor(Math.random() * sampleMerchants.length)];
-  const amount = merchant.amount();
-  const carbon = parseFloat(((amount / 1000) * merchant.carbonFactor).toFixed(1));
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:true });
-  const dateStr = now.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-
-  const txn = {
-    id: 'txn_' + Date.now(),
-    emoji: merchant.emoji,
-    name: merchant.name,
-    cat: merchant.cat,
-    mcc: merchant.mcc,
-    amount, carbon,
-    impact: merchant.impact,
-    time: timeStr,
-    date: dateStr,
-    fullDate: now,
-    details: `MCC ${merchant.mcc} · ${merchant.cat} · Just now`,
-    tip: merchant.tips[Math.floor(Math.random() * merchant.tips.length)]
-  };
-
-  allTransactions.unshift(txn);
-  return txn;
-}
-
-function createTxnElement(txn) {
-  const el = document.createElement('div');
-  el.className = 'txn-item';
-  el.setAttribute('data-txn', txn.id);
-  el.setAttribute('data-impact', txn.impact);
-  el.innerHTML = `
-    <div class="txn-icon ${txn.impact}">${txn.emoji}</div>
-    <div class="txn-info">
-      <div class="txn-name">${txn.name}</div>
-      <div class="txn-details">${txn.details}</div>
-    </div>
-    <div class="txn-right">
-      <div class="txn-carbon ${txn.impact}">${txn.carbon} kg</div>
-      <div class="txn-amount">₹${txn.amount}</div>
-    </div>
-  `;
-  el.addEventListener('click', function(e) {
-    showTransactionModal(txn);
-    const r = document.createElement('span');
-    const rect = this.getBoundingClientRect();
-    r.style.cssText = `position:absolute;border-radius:50%;background:rgba(74,222,128,.15);width:12px;height:12px;left:${e.clientX-rect.left}px;top:${e.clientY-rect.top}px;transform:translate(-50%,-50%) scale(0);animation:rippleAnim .5s ease-out forwards;pointer-events:none;z-index:99`;
-    this.appendChild(r);
-    setTimeout(() => r.remove(), 500);
-  });
-  return el;
-}
-
-function addTransactionToUI(txn) {
-  // Home page
-  const homeList = document.getElementById('homeTxnList');
-  const homeEmpty = document.getElementById('homeEmptyState');
-  if (homeEmpty) homeEmpty.remove();
-
-  const homeEl = createTxnElement(txn);
-  homeEl.style.opacity = '0';
-  homeEl.style.transform = 'translateY(-20px)';
-  homeList.insertBefore(homeEl, homeList.firstChild);
-  setTimeout(() => {
-    homeEl.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-    homeEl.style.opacity = '1';
-    homeEl.style.transform = 'translateY(0)';
-  }, 50);
-
-  // Keep only 3 in home
-  const homeItems = homeList.querySelectorAll('.txn-item');
-  if (homeItems.length > 3) homeItems[homeItems.length - 1].remove();
-
-  // Transactions page
-  const txnsList = document.getElementById('transactionsTxnList');
-  const txnsEmpty = document.getElementById('txnsEmptyState');
-  if (txnsEmpty) txnsEmpty.remove();
-
-  const txnsEl = createTxnElement(txn);
-  txnsEl.style.opacity = '0';
-  txnsEl.style.transform = 'translateY(-20px)';
-  txnsList.insertBefore(txnsEl, txnsList.firstChild);
-  setTimeout(() => {
-    txnsEl.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-    txnsEl.style.opacity = '1';
-    txnsEl.style.transform = 'translateY(0)';
-  }, 50);
-
-  // Reapply active filter
-  const activeFilter = document.querySelector('.filter-tab.active');
-  if (activeFilter) {
-    const filter = activeFilter.getAttribute('data-filter');
-    if (filter !== 'all') {
-      txnsEl.style.display = txn.impact === filter ? 'flex' : 'none';
-    }
-  }
-
-  updateWeeklyCarbon();
-  updateCategoryBreakdown();
-  updateWeeklyChart();
-  updateComparisonCard();
-  updateAchievements();
-  transactionCount++;
-  checkGoalStatus();
-  saveState();
-  
-  // Award/deduct green points based on transaction impact
-  let gpChange = 0;
-  const baseGP = Math.floor(txn.amount / 100); // Base GP calculation
-  
-  if (txn.impact === 'low') {
-    // Low impact: Award MORE points (3x base rate = 6 GP per ₹100)
-    gpChange = baseGP * 6;
-  } else if (txn.impact === 'medium') {
-    // Medium impact: Award fewer points (1x base rate = 2 GP per ₹100)
-    gpChange = baseGP * 2;
-  } else if (txn.impact === 'high') {
-    // High impact: DEDUCT points (2x base rate = 4 GP per ₹100)
-    gpChange = -(baseGP * 4);
-  }
-  
-  if (gpChange !== 0) {
-    greenPoints += gpChange;
-    // Don't let GP go negative
-    if (greenPoints < 0) greenPoints = 0;
-    
-    document.getElementById('greenPoints').textContent = greenPoints;
-    const el = document.getElementById('rewardsGP'); 
-    if (el) el.textContent = greenPoints;
-    updateAchievements(); // Update achievements when GP changes
-    saveState();
-  }
-  
-  return gpChange; // Return for notification display
-}
-
-// ══════════════════════════════════════
-// TOAST NOTIFICATION (ccg format)
-// ══════════════════════════════════════
-function showToast(title, message, icon = '✓', duration = 3000) {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.innerHTML = `
-    <div class="toast-content">
-      <div class="toast-icon">${icon}</div>
-      <div class="toast-text">
-        <div class="toast-title">${title}</div>
-        <div class="toast-message">${message}</div>
-      </div>
-    </div>
-  `;
-  container.appendChild(toast);
-  setTimeout(() => toast.classList.add('show'), 10);
-  setTimeout(() => {
-    toast.classList.remove('show');
-    toast.classList.add('hide');
-    setTimeout(() => toast.remove(), 400);
-  }, duration);
-}
-
-// ══════════════════════════════════════
-// QR BUTTON HANDLER
-// ══════════════════════════════════════
-function handleQRScan(e) {
-  const btn = e.currentTarget;
-  btn.style.transform = 'scale(0.9)';
-  setTimeout(() => {
-    btn.style.transform = '';
-    const txn = generateTransaction();
-    const gpChange = addTransactionToUI(txn);
-    
-    // Create GP notification message
-    let gpMessage = '';
-    if (gpChange > 0) {
-      gpMessage = ` • +${gpChange} GP earned! 🎉`;
-    } else if (gpChange < 0) {
-      gpMessage = ` • ${gpChange} GP penalty 😔`;
-    } else {
-      gpMessage = '';
-    }
-    
-    showToast(
-      `${txn.name} – ₹${txn.amount}`,
-      `+${txn.carbon} kg CO₂ added${gpMessage}`,
-      txn.emoji,
-      3500
-    );
-    btn.style.boxShadow = '0 0 20px rgba(74,222,128,.6)';
-    setTimeout(() => btn.style.boxShadow = '', 1000);
-  }, 200);
-}
-
-document.getElementById('qrBtn').addEventListener('click', handleQRScan);
-document.getElementById('qrBtn2').addEventListener('click', handleQRScan);
-document.getElementById('qrBtn3').addEventListener('click', handleQRScan);
-document.getElementById('qrBtn4').addEventListener('click', handleQRScan);
-
-// ══════════════════════════════════════
-// TRANSACTION MODAL
-// ══════════════════════════════════════
-const txnModal = document.getElementById('txnModal');
-const txnModalSheet = document.getElementById('txnModalSheet');
-
-function showTransactionModal(txn) {
-  document.getElementById('modalEmoji').textContent = txn.emoji;
-  document.getElementById('modalName').textContent = txn.name;
-  document.getElementById('modalCat').textContent = `${txn.cat} · MCC ${txn.mcc}`;
-  document.getElementById('modalAmount').textContent = `₹${txn.amount}`;
-  document.getElementById('modalCarbon').textContent = `${txn.carbon} kg CO₂`;
-  document.getElementById('modalDate').textContent = `${txn.date} · ${txn.time}`;
-
-  const iconEl = document.getElementById('modalIconBig');
-  iconEl.className = `modal-icon-big ${txn.impact}`;
-
-  // Build category-specific carbon breakdown from actual transaction data
-  const breakdownMap = {
-    'Eating Places':    [
-      { name:'Food Production & Agriculture', pct:0.55 },
-      { name:'Kitchen Energy & Cooking',      pct:0.25 },
-      { name:'Packaging & Waste',             pct:0.20 }
-    ],
-    'Fast Food':        [
-      { name:'Meat & Ingredients',            pct:0.50 },
-      { name:'Kitchen Operations',            pct:0.30 },
-      { name:'Packaging & Delivery',          pct:0.20 }
-    ],
-    'Restaurant':       [
-      { name:'Ingredients & Supply Chain',    pct:0.50 },
-      { name:'Cooking & Refrigeration',       pct:0.30 },
-      { name:'Packaging & Disposal',          pct:0.20 }
-    ],
-    'Grocery Store':    [
-      { name:'Food & Produce Sourcing',       pct:0.45 },
-      { name:'Cold Chain & Refrigeration',    pct:0.35 },
-      { name:'Packaging & Transport',         pct:0.20 }
-    ],
-    'Gas Station':      [
-      { name:'Fuel Combustion (direct)',      pct:0.75 },
-      { name:'Fuel Refining & Distribution',  pct:0.18 },
-      { name:'Station Operations',            pct:0.07 }
-    ],
-    'Clothing Store':   [
-      { name:'Textile Manufacturing',         pct:0.60 },
-      { name:'Global Shipping & Logistics',   pct:0.25 },
-      { name:'Retail Operations',             pct:0.15 }
-    ],
-    'Entertainment':    [
-      { name:'Venue Energy Use',              pct:0.55 },
-      { name:'Travel to Venue',               pct:0.30 },
-      { name:'Operations & Equipment',        pct:0.15 }
-    ],
-    'Health & Fitness': [
-      { name:'Facility Electricity',          pct:0.60 },
-      { name:'HVAC & Water Heating',          pct:0.25 },
-      { name:'Equipment & Maintenance',       pct:0.15 }
-    ]
-  };
-
-  const breakdownItems = breakdownMap[txn.cat] || [
-    { name:'Product/Service Carbon',          pct:0.60 },
-    { name:'Transportation & Logistics',      pct:0.25 },
-    { name:'Operations & Energy',             pct:0.15 }
-  ];
-
-  document.getElementById('carbonBreakdown').innerHTML =
-    `<div class="breakdown-title">Carbon Breakdown</div>` +
-    breakdownItems.map(b => `<div class="breakdown-item"><div class="name">${b.name}</div><div class="val">${(txn.carbon * b.pct).toFixed(2)} kg</div></div>`).join('');
-
-  document.getElementById('modalTip').innerHTML = `<strong>Eco Tip:</strong> ${txn.tip}`;
-
-  txnModal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
-txnModal.addEventListener('click', e => { if (e.target === txnModal) closeModal(); });
-
-function closeModal() {
-  txnModal.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-// Swipe to close
-let touchStartY = 0;
-txnModalSheet.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, {passive:true});
-txnModalSheet.addEventListener('touchmove', e => {
-  const dy = e.touches[0].clientY - touchStartY;
-  if (dy > 0) txnModalSheet.style.transform = `translateY(${dy}px)`;
-}, {passive:true});
-txnModalSheet.addEventListener('touchend', e => {
-  const dy = e.changedTouches[0].clientY - touchStartY;
-  txnModalSheet.style.transform = '';
-  if (dy > 80) closeModal();
-}, {passive:true});
-
-// Ripple animation
-const ripStyle = document.createElement('style');
-ripStyle.textContent = '@keyframes rippleAnim{to{transform:scale(14);opacity:0;}}';
-document.head.appendChild(ripStyle);
-
-// ══════════════════════════════════════
-// GOAL SYSTEM
-// ══════════════════════════════════════
-function updateWeeklyCarbon() {
-  const total = allTransactions.reduce((sum, t) => sum + t.carbon, 0);
-  document.getElementById('weekCarbon').textContent = total.toFixed(1);
-
-  const percentUsed = Math.min((total / weeklyGoal) * 100, 100);
-  const circumference = 188.5;
-  const offset = circumference - (circumference * percentUsed / 100);
-  document.getElementById('goalCircle').style.strokeDashoffset = offset;
-  document.querySelector('.goal-ring-label span').textContent = Math.round(percentUsed) + '%';
-
-  const remaining = Math.max(weeklyGoal - total, 0);
-  document.querySelector('.goal-info .main').textContent = `${remaining.toFixed(1)} kg away from your Green Goal`;
-
-  const percentRemaining = Math.max(0, ((weeklyGoal - total) / weeklyGoal) * 100);
-  document.getElementById('weeklyProgressBar').style.width = `${percentRemaining}%`;
-
-  const badge = document.getElementById('weeklyBadge');
-  if (total >= weeklyGoal) {
-    badge.textContent = 'Over Goal';
-    badge.style.cssText = 'background:rgba(248,113,113,.15);color:#f87171;border-color:rgba(248,113,113,.3);';
-  } else if (percentRemaining < 20) {
-    badge.textContent = 'Almost There!';
-    badge.style.cssText = 'background:rgba(251,191,36,.15);color:#fbbf24;border-color:rgba(251,191,36,.3);';
-  } else {
-    badge.textContent = 'On Track';
-    badge.style.cssText = 'background:rgba(74,222,128,.1);color:#4ade80;border-color:rgba(74,222,128,.25);';
-  }
-
-  document.getElementById('weeklyRemaining').textContent = `${remaining.toFixed(1)} kg`;
-  document.getElementById('weeklyUsed').textContent = `${total.toFixed(1)} kg`;
-  document.getElementById('weeklyGoalDisplay').textContent = `${weeklyGoal.toFixed(1)} kg`;
-
-  // Update profile total
-  document.getElementById('profileTotalCarbon').textContent = total.toFixed(1);
-
-  if (transactionCount >= 3 && total < weeklyGoal && goalStatus === 'active') {
-    setTimeout(awardGreenPoints, 500);
-  }
-}
-
-// ══════════════════════════════════════
-// CATEGORY BREAKDOWN (synced to transactions)
-// ══════════════════════════════════════
-function updateCategoryBreakdown() {
-  const el = document.getElementById('categoryList');
-  if (!el) return;
-
-  // Map merchant cats → display categories
-  const catMap = {
-    'Eating Places':  'Food & Dining',
-    'Fast Food':      'Food & Dining',
-    'Restaurant':     'Food & Dining',
-    'Grocery Store':  'Food & Dining',
-    'Gas Station':    'Transportation',
-    'Clothing Store': 'Shopping',
-    'Entertainment':  'Entertainment',
-    'Health & Fitness':'Entertainment'
-  };
-
-  const catMeta = {
-    'Food & Dining':  { icon:'🍕', grad:'linear-gradient(90deg,#fb923c,#fbbf24)' },
-    'Transportation': { icon:'⛽', grad:'linear-gradient(90deg,#f87171,#fb923c)' },
-    'Shopping':       { icon:'👕', grad:'linear-gradient(90deg,#fbbf24,#4ade80)' },
-    'Entertainment':  { icon:'🎬', grad:'linear-gradient(90deg,#38bdf8,#4ade80)' }
-  };
-
-  // Tally carbon per display category from actual transactions
-  const totals = {};
-  for (const txn of allTransactions) {
-    const display = catMap[txn.cat] || 'Other';
-    totals[display] = (totals[display] || 0) + txn.carbon;
-  }
-
-  const grand = Object.values(totals).reduce((s, v) => s + v, 0);
-
-  if (grand === 0) {
-    el.innerHTML = `<div style="text-align:center;padding:32px 20px;color:var(--text-muted);">
-      <div style="font-size:36px;margin-bottom:8px;">📊</div>
-      <div style="font-size:13px;">No transactions yet — tap 📷 to add one</div>
-    </div>`;
-    return;
-  }
-
-  // Sort by carbon descending
-  const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-  const maxVal = sorted[0][1];
-
-  el.innerHTML = sorted.map(([cat, val]) => {
-    const meta = catMeta[cat] || { icon:'📦', grad:'linear-gradient(90deg,#4ade80,#22c55e)' };
-    const pct  = grand > 0 ? Math.round((val / grand) * 100) : 0;
-    const barW = grand > 0 ? Math.round((val / maxVal) * 100) : 0;
-    return `<div class="category-item">
-      <div class="cat-icon">${meta.icon}</div>
-      <div class="cat-info">
-        <div class="cat-name">${cat}</div>
-        <div class="cat-bar"><div class="cat-bar-fill" style="width:${barW}%;background:${meta.grad};"></div></div>
-      </div>
-      <div class="cat-value">
-        <div class="cat-carbon">${val.toFixed(1)} kg</div>
-        <div class="cat-percent">${pct}%</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════
-// UPDATE WEEKLY CHART (Insights page)
-// ══════════════════════════════════════
-function updateWeeklyChart() {
-  const chartEl = document.getElementById('weeklyChart');
-  if (!chartEl) return;
-
-  const total = allTransactions.reduce((sum, t) => sum + t.carbon, 0);
-  
-  // Update total display
-  const totalEl = document.getElementById('insightsWeeklyTotal');
-  if (totalEl) totalEl.textContent = total.toFixed(1) + ' kg CO₂';
-
-  if (total === 0) {
-    chartEl.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
-      <div style="font-size:36px;margin-bottom:8px;">📊</div>
-      <div style="font-size:13px;">No transactions yet — tap 📷 to add one</div>
-    </div>`;
-    return;
-  }
-
-  // Group transactions by day for a weekly view
-  const now = new Date();
-  const dailyTotals = {};
-  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
-  // Initialize last 7 days
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    const key = d.toDateString();
-    dailyTotals[key] = { carbon: 0, label: dayLabels[d.getDay()] };
-  }
-  
-  // Tally transaction carbon by day
-  allTransactions.forEach(txn => {
-    const key = txn.fullDate.toDateString();
-    if (dailyTotals[key]) {
-      dailyTotals[key].carbon += txn.carbon;
-    }
-  });
-  
-  const entries = Object.values(dailyTotals);
-  const maxCarbon = Math.max(...entries.map(e => e.carbon), 0.1);
-  
-  chartEl.innerHTML = entries.map((entry, idx) => {
-    const height = maxCarbon > 0 ? Math.max((entry.carbon / maxCarbon) * 100, 5) : 5;
-    const isToday = idx === entries.length - 1;
-    return `<div class="chart-bar${isToday ? ' active' : ''}" style="height:${height}%;">
-      <span>${entry.label}<br>${entry.carbon.toFixed(1)}kg</span>
-    </div>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════
-// UPDATE COMPARISON CARD (Insights page)
-// ══════════════════════════════════════
-function updateComparisonCard() {
-  const yourCarbon = allTransactions.reduce((sum, t) => sum + t.carbon, 0);
-  const avgCarbon = weeklyGoal; // Use weekly goal as "average user"
-  
-  const yourCarbonEl = document.getElementById('yourCarbon');
-  const avgCarbonEl = document.getElementById('avgCarbon');
-  const yourBarEl = document.getElementById('yourBar');
-  const compBadgeEl = document.getElementById('compBadge');
-  const compTipEl = document.getElementById('compTip');
-  
-  if (!yourCarbonEl || !avgCarbonEl || !yourBarEl || !compBadgeEl || !compTipEl) return;
-  
-  yourCarbonEl.textContent = yourCarbon.toFixed(1) + ' kg';
-  avgCarbonEl.textContent = avgCarbon.toFixed(1) + ' kg';
-  
-  if (yourCarbon === 0) {
-    yourBarEl.style.width = '0%';
-    compBadgeEl.textContent = '-';
-    compBadgeEl.className = 'comp-badge';
-    compTipEl.textContent = '🌟 Start adding transactions to see how you compare!';
-    return;
-  }
-  
-  const barWidth = Math.min((yourCarbon / avgCarbon) * 100, 100);
-  yourBarEl.style.width = barWidth + '%';
-  
-  if (yourCarbon < avgCarbon) {
-    const percentBetter = Math.round(((avgCarbon - yourCarbon) / avgCarbon) * 100);
-    compBadgeEl.textContent = percentBetter + '% Better';
-    compBadgeEl.className = 'comp-badge good';
-    compTipEl.textContent = '🌟 You\'re doing great! Your carbon footprint is lower than average.';
-  } else if (yourCarbon > avgCarbon) {
-    const percentWorse = Math.round(((yourCarbon - avgCarbon) / avgCarbon) * 100);
-    compBadgeEl.textContent = percentWorse + '% Higher';
-    compBadgeEl.className = 'comp-badge bad';
-    compTipEl.textContent = '💡 Try reducing your carbon footprint to meet your weekly goal!';
-  } else {
-    compBadgeEl.textContent = 'On Par';
-    compBadgeEl.className = 'comp-badge';
-    compTipEl.textContent = '👍 You\'re right on track with the average user.';
-  }
-}
-
-// ══════════════════════════════════════
-// UPDATE ACHIEVEMENTS (Insights page)
-// ══════════════════════════════════════
-function updateAchievements() {
-  // Eco Starter - first transaction
-  const achEcoStarter = document.getElementById('achEcoStarter');
-  if (achEcoStarter) {
-    if (allTransactions.length >= 1) {
-      achEcoStarter.classList.add('earned');
-    } else {
-      achEcoStarter.classList.remove('earned');
-    }
-  }
-  
-  // Goal Getter - met weekly goal
-  const achGoalGetter = document.getElementById('achGoalGetter');
-  if (achGoalGetter) {
-    const total = allTransactions.reduce((sum, t) => sum + t.carbon, 0);
-    if (goalStatus === 'success' || (total < weeklyGoal && transactionCount >= 3)) {
-      achGoalGetter.classList.add('earned');
-    } else {
-      achGoalGetter.classList.remove('earned');
-    }
-  }
-  
-  // Spend Wise - 5+ transactions
-  const achSpendWise = document.getElementById('achSpendWise');
-  if (achSpendWise) {
-    if (allTransactions.length >= 5) {
-      achSpendWise.classList.add('earned');
-    } else {
-      achSpendWise.classList.remove('earned');
-    }
-  }
-  
-  // Point Collector - 50+ GP
-  const achPointCollector = document.getElementById('achPointCollector');
-  if (achPointCollector) {
-    if (greenPoints >= 50) {
-      achPointCollector.classList.add('earned');
-    } else {
-      achPointCollector.classList.remove('earned');
-    }
-  }
-}
-
-function checkGoalStatus() {
-  const total = allTransactions.reduce((sum, t) => sum + t.carbon, 0);
-  const alert = document.getElementById('goalStatusAlert');
-
-  if (goalStatus === 'active') {
-    if (total >= weeklyGoal) {
-      goalStatus = 'failed';
-      alert.classList.remove('hidden','success');
-      alert.classList.add('failed');
-      document.getElementById('goalStatusIcon').textContent = '😢';
-      document.getElementById('goalStatusTitle').textContent = 'Goal Failed!';
-      document.getElementById('goalStatusMessage').textContent = `You exceeded your ${weeklyGoal.toFixed(1)}kg goal. Try again next week!`;
-      setTimeout(() => alert.classList.add('hidden'), 5000);
-    }
-  }
-}
-
-function awardGreenPoints() {
-  const total = allTransactions.reduce((sum, t) => sum + t.carbon, 0);
-  if (goalStatus === 'active' && total < weeklyGoal && transactionCount >= 3) {
-    goalStatus = 'success';
-    greenPoints += 50;
-    document.getElementById('greenPoints').textContent = greenPoints;
-    const el = document.getElementById('rewardsGP'); if (el) el.textContent = greenPoints;
-    saveState();
-    updateAchievements(); // Update achievements when GP awarded
-    const alert = document.getElementById('goalStatusAlert');
-    alert.classList.remove('hidden','failed');
-    alert.classList.add('success');
-    document.getElementById('goalStatusIcon').textContent = '🎉';
-    document.getElementById('goalStatusTitle').textContent = 'Goal Achieved!';
-    document.getElementById('goalStatusMessage').textContent = 'You earned 50 Green Points! Keep up the great work!';
-    const btn = document.getElementById('setGoalBtn');
-    btn.style.transform = 'scale(1.1)';
-    setTimeout(() => btn.style.transform = '', 300);
-    setTimeout(() => alert.classList.add('hidden'), 6000);
-  }
-}
-
-// Goal Modal
-document.getElementById('setGoalBtn').addEventListener('click', () => {
-  document.getElementById('goalInput').value = weeklyGoal.toFixed(1);
-  document.getElementById('goalModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-});
-
-document.querySelectorAll('.goal-suggest-btn').forEach(btn => {
-  btn.addEventListener('click', function() {
-    document.getElementById('goalInput').value = parseFloat(this.getAttribute('data-goal')).toFixed(1);
-  });
-});
-
-document.getElementById('goalSaveBtn').addEventListener('click', function() {
-  const newGoal = parseFloat(document.getElementById('goalInput').value);
-  if (newGoal && newGoal > 0 && newGoal <= 100) {
-    weeklyGoal = newGoal;
-    document.getElementById('goalValue').textContent = weeklyGoal.toFixed(1);
-    goalStatus = 'active';
-    document.getElementById('goalStatusAlert').classList.add('hidden');
-    closeGoalModal();
-    updateWeeklyCarbon();
-    saveState();
-    const orig = this.textContent;
-    this.textContent = '✓ Goal Saved!';
-    this.style.opacity = '0.8';
-    setTimeout(() => { this.textContent = orig; this.style.opacity = ''; }, 1500);
-  } else {
-    showToast('Invalid Goal', 'Please enter a valid goal between 1 and 100 kg CO₂', '⚠️');
-  }
-});
-
-document.getElementById('goalCancelBtn').addEventListener('click', closeGoalModal);
-document.getElementById('goalModal').addEventListener('click', e => {
-  if (e.target === document.getElementById('goalModal')) closeGoalModal();
-});
-
-function closeGoalModal() {
-  document.getElementById('goalModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-// ══════════════════════════════════════
-// FILTER TABS
-// ══════════════════════════════════════
-document.querySelectorAll('.filter-tab').forEach(tab => {
-  tab.addEventListener('click', function() {
-    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-    this.classList.add('active');
-    const filter = this.getAttribute('data-filter');
-    document.querySelectorAll('#transactionsTxnList .txn-item').forEach(item => {
-      item.style.display = (filter === 'all' || item.getAttribute('data-impact') === filter) ? 'flex' : 'none';
-    });
-  });
-});
-
-// ══════════════════════════════════════
-// PROFILE INTERACTIONS
-// ══════════════════════════════════════
-document.querySelectorAll('.menu-item').forEach(item => {
-  item.addEventListener('click', function() {
-    if (this.id === 'exportDataBtn') return; // handled by onclick
-    if (this.id === 'deleteDataBtn') return;  // handled by onclick
-    const title = this.querySelector('.menu-title')?.textContent;
-    if (title) showToast('Opening', title, '📱');
-  });
-});
-
-document.getElementById('editProfileBtn').addEventListener('click', () => {
-  showToast('Coming Soon', 'Edit profile feature is under development', '👤');
-});
-
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  if (confirm('Log out of CarbonCash?')) logoutUser();
-});
-
-// Allow Enter key on auth inputs
-['loginUsername','loginPassword'].forEach(id => {
-  document.getElementById(id)?.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
-});
-['signupName','signupUsername','signupPassword','signupConfirm'].forEach(id => {
-  document.getElementById(id)?.addEventListener('keydown', e => { if (e.key === 'Enter') handleSignup(); });
-});
-
-// ══════════════════════════════════════
-// CSV EXPORT
-// ══════════════════════════════════════
-function escapeCSV(val) {
-  if (val === null || val === undefined) return '';
-  const str = String(val);
-  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-    return '"' + str.replace(/"/g, '""') + '"';
-  }
-  return str;
-}
-
-function downloadCSV(content, filename) {
-  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-  const url  = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href     = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
-
-function exportToCSV() {
-  const now       = new Date();
-  const timestamp = now.toISOString().slice(0, 19).replace('T', ' ');
-  const dateTag   = now.toISOString().slice(0, 10);
-
-  // ── 1. USER PROFILE SUMMARY CSV ──────────────────────────────
-  const totalCarbon = allTransactions.reduce((s, t) => s + t.carbon, 0);
-  const totalSpend  = allTransactions.reduce((s, t) => s + (t.amount || 0), 0);
-  const goalLabel   = goalStatus === 'success' ? 'Achieved' : goalStatus === 'failed' ? 'Failed' : 'Active';
-  const claimed     = [...claimedRewards].join('; ') || 'None';
-
-  const profileRows = [
-    ['Field', 'Value'],
-    ['Export Timestamp', timestamp],
-    ['Username',         'Priya Sharma'],
-    ['Email',            'priya@carboncash.app'],
-    ['Green Points (GP)', greenPoints],
-    ['Weekly Carbon Goal (kg CO₂)', weeklyGoal.toFixed(1)],
-    ['Goal Status',      goalLabel],
-    ['Total CO₂ This Week (kg)', totalCarbon.toFixed(2)],
-    ['Total Transactions', allTransactions.length],
-    ['Total Spend (₹)',  totalSpend],
-    ['Claimed Rewards',  claimed],
-  ];
-
-  // Category breakdown
-  const cats = { 'Eating Places': 0, 'Gas Station': 0, 'Grocery Store': 0,
-                 'Clothing Store': 0, 'Entertainment': 0, 'Health & Fitness': 0, 'Restaurant': 0, 'Fast Food': 0 };
-  allTransactions.forEach(t => { if (cats[t.cat] !== undefined) cats[t.cat] += t.carbon; });
-  profileRows.push(['', '']);
-  profileRows.push(['--- Carbon by Category ---', '']);
-  Object.entries(cats).forEach(([cat, kg]) => {
-    if (kg > 0) profileRows.push([cat + ' (kg CO₂)', kg.toFixed(2)]);
-  });
-
-  const profileCSV = profileRows.map(r => r.map(escapeCSV).join(',')).join('\r\n');
-
-  // ── 2. TRANSACTION HISTORY CSV ───────────────────────────────
-  const txnHeaders = [
-    'Transaction ID', 'Date', 'Time', 'Merchant Name',
-    'Category', 'MCC Code', 'Amount (₹)', 'Carbon (kg CO₂)',
-    'Impact Level', 'Green Points Change', 'Eco Tip'
-  ];
-
-  const txnRows = allTransactions.map(t => {
-    // Recalculate GP change direction based on impact
-    let gpEstimate = '';
-    if (t.impact === 'low')    gpEstimate = '+' + Math.round((t.amount / 1000) * 6 * 2);
-    if (t.impact === 'medium') gpEstimate = '+' + Math.round((t.amount / 1000) * 2 * 2);
-    if (t.impact === 'high')   gpEstimate = '-' + Math.round((t.amount / 1000) * 4 * 2);
-
-    return [
-      t.id,
-      t.date  || dateTag,
-      t.time  || '',
-      t.name,
-      t.cat,
-      t.mcc   || '',
-      t.amount || '',
-      t.carbon.toFixed(2),
-      t.impact,
-      gpEstimate,
-      t.tip   || ''
-    ];
-  });
-
-  const txnCSV = [txnHeaders, ...txnRows].map(r => r.map(escapeCSV).join(',')).join('\r\n');
-
-  // ── Download both files ───────────────────────────────────────
-  downloadCSV(profileCSV, `carboncash_profile_${dateTag}.csv`);
-  setTimeout(() => {
-    downloadCSV(txnCSV, `carboncash_transactions_${dateTag}.csv`);
-  }, 400);
-
-  showToast('Export Complete! 📊', '2 CSV files downloaded: profile & transactions', '✅', 4000);
-}
-// ══════════════════════════════════════
-// REWARDS & MERCHANTS DATA
-// ══════════════════════════════════════
-const rewardData = {
-  solar: { icon:'☀️', title:'Solar Panel Discount', subtitle:'Renewable Energy Investment',
-    description:'Get 10% off professional solar panel installation from certified partners. Convert your home to clean, renewable energy and reduce your carbon footprint by up to 80%.',
-    features:[{icon:'💰',text:'Save ₹80,000-₹2,50,000 on installation'},{icon:'🔋',text:'25-year performance warranty'},{icon:'📊',text:'Free energy audit included'},{icon:'🏆',text:'Tax credits & incentives guidance'}],
-    terms:'Valid for 90 days. One-time use only. Cannot be combined with other offers. Minimum system size 3kW.', cost:100 },
-  ev: { icon:'⚡', title:'EV Charging Free Month', subtitle:'Electric Vehicle Charging',
-    description:'Get 1 month of unlimited charging at any EcoCharge station nationwide. Perfect for electric vehicle owners looking to reduce charging costs.',
-    features:[{icon:'🔌',text:'Unlimited charging sessions'},{icon:'🗺️',text:'2,000+ stations nationwide'},{icon:'⚡',text:'Fast charging available'},{icon:'📱',text:'Mobile app access'}],
-    terms:'Valid for 30 days from activation. One vehicle only. Not valid for commercial use.', cost:150 },
-  wind: { icon:'🌊', title:'Wind Energy Plan Discount', subtitle:'100% Renewable Electricity',
-    description:'Switch to 100% wind-powered electricity with 15% off your first year. Support clean energy and reduce your home carbon emissions to zero.',
-    features:[{icon:'💨',text:'100% wind-generated power'},{icon:'📉',text:'15% off for 12 months'},{icon:'🌍',text:'Carbon-neutral certified'},{icon:'📊',text:'Monthly impact reports'}],
-    terms:'12-month contract required. Discount applies to energy charges only. Available in select regions.', cost:300 },
-  tree: { icon:'🌳', title:'Plant 10 Trees', subtitle:'Reforestation Project',
-    description:'Plant 10 trees in your name through our verified reforestation partners. Each tree absorbs approximately 22 kg of CO₂ per year.',
-    features:[{icon:'🌱',text:'10 trees planted in verified forests'},{icon:'📍',text:'GPS coordinates of your trees'},{icon:'📸',text:'Planting photos & certificates'},{icon:'🌍',text:'~220 kg CO₂ absorbed annually'}],
-    terms:'Trees planted within 30 days. Located in reforestation zones. Tracking updates quarterly.', cost:500 },
-  coffee: { icon:'☕', title:'Eco Café Voucher', subtitle:'Sustainable Coffee',
-    description:'₹400 voucher for eco-friendly cafés partnered with CarbonCash. Valid at 200+ locations serving organic, fair-trade coffee.',
-    features:[{icon:'☕',text:'Valid at 200+ locations'},{icon:'🌱',text:'Organic & fair-trade only'},{icon:'♻️',text:'Zero-waste packaging'},{icon:'💚',text:'Support local businesses'}],
-    terms:'Valid for 60 days. One-time use. Cannot be split or combined.', cost:25 },
-  'bike-rental': { icon:'🚲', title:'Bike Rental Week', subtitle:'Green Transportation',
-    description:'Get 1 week of free bike rental from BikeShare City. Access thousands of bikes across the city for zero-emission travel.',
-    features:[{icon:'🚴',text:'7 days unlimited rides'},{icon:'📍',text:'300+ pickup/drop stations'},{icon:'🔐',text:'No deposit required'},{icon:'📱',text:'Easy app unlock'}],
-    terms:'Valid for 7 consecutive days. Standard bikes only. Damage fees may apply.', cost:40 },
-  transit: { icon:'🚇', title:'Transit Pass Month', subtitle:'Public Transportation',
-    description:'1 month unlimited public transit pass for buses, trains, and metro. Reduce your carbon footprint while saving on commute costs.',
-    features:[{icon:'🚌',text:'All buses, trains & metro'},{icon:'📅',text:'30 days unlimited rides'},{icon:'💵',text:'Save ~₹2,500/month'},{icon:'🌍',text:'Reduce CO₂ by ~2 kg/day'}],
-    terms:'Valid for 30 days from first use. Non-transferable. Express routes included.', cost:120 },
-  organic: { icon:'🥗', title:'Organic Produce Box', subtitle:'Farm Fresh Delivery',
-    description:'Weekly organic produce box delivered to your door. Seasonal fruits and vegetables from local certified organic farms.',
-    features:[{icon:'🌾',text:'Certified organic produce'},{icon:'🚚',text:'Free home delivery'},{icon:'👨‍🌾',text:'Support local farms'},{icon:'📦',text:'15-20 items per box'}],
-    terms:'One delivery only. Available in select pin codes. Substitutions may occur based on availability.', cost:60 }
-};
-
-const merchantData = {
-  solar: { icon:'☀️', name:'SolarPro Solutions', category:'Renewable Energy',
-    description:'Leading solar panel installer with 15+ years of experience. Certified installers, premium equipment, and industry-best warranties. Join 10,000+ satisfied customers.',
-    features:[{icon:'⭐',text:'15+ years in business'},{icon:'👥',text:'10,000+ installations'},{icon:'🛡️',text:'25-year warranty'},{icon:'💰',text:'Flexible financing options'}],
-    stats:[{label:'GP/Purchase',value:'30'},{label:'Max Discount',value:'15%'},{label:'Avg. Savings',value:'₹2,500'}],
-    terms:'Earn 30 GP per ₹100 spent. Unlock 15% discount with 200+ GP. Free consultation included.',
-    website:'https://www.solarpro.com' },
-  ev: { icon:'⚡', name:'EcoCharge Network', category:'EV Charging',
-    description:"Nation's largest EV charging network with 2,100+ stations. Fast charging, reliable service, and competitive rates. Mobile app for easy station location and payment.",
-    features:[{icon:'🗺️',text:'2,100+ charging stations'},{icon:'⚡',text:'Level 2 & DC fast charging'},{icon:'📱',text:'iOS & Android apps'},{icon:'💳',text:'Pay-as-you-go or subscription'}],
-    stats:[{label:'GP/Session',value:'5'},{label:'Stations',value:'2,100'},{label:'Avg. Speed',value:'30 min'}],
-    terms:'Earn 5 GP per charging session. Free charging available with 150+ GP membership.',
-    website:'https://www.ecocharge.com' },
-  grocer: { icon:'🌿', name:'GreenGrocer Market', category:'Organic Food',
-    description:'Your neighbourhood organic market featuring locally-sourced produce, sustainable products, and zero-waste options. Supporting local farmers and reducing food miles.',
-    features:[{icon:'🌾',text:'Certified organic produce'},{icon:'👨‍🌾',text:'Local farm partnerships'},{icon:'♻️',text:'Zero-waste bulk section'},{icon:'🥬',text:'Seasonal selections'}],
-    stats:[{label:'GP/Week',value:'20'},{label:'Discount',value:'10%'},{label:'Locations',value:'45'}],
-    terms:'Earn 2 GP per ₹10 spent. 10% discount on organic produce with 100+ GP.',
-    website:'https://www.greengrocermarket.com' },
-  bike: { icon:'🚴', name:'BikeShare City', category:'Green Transport',
-    description:'City-wide bike sharing with 300+ stations. Perfect for short trips, exercise, and reducing your carbon footprint. Easy unlock with our mobile app.',
-    features:[{icon:'🚲',text:'1,000+ bikes available'},{icon:'📍',text:'300+ stations citywide'},{icon:'📱',text:'Quick app unlock'},{icon:'🔒',text:'Secure parking stations'}],
-    stats:[{label:'GP/Ride',value:'3'},{label:'Pass Discount',value:'20%'},{label:'Avg. Trip',value:'15 min'}],
-    terms:'Earn 3 GP per ride. Monthly pass 20% off with 80+ GP.',
-    website:'https://www.bikesharecity.com' },
-  recycle: { icon:'♻️', name:'RecycleHub', category:'Waste Management',
-    description:'Comprehensive recycling and waste management services. Accept electronics, batteries, plastics, paper, and more. Proper disposal guaranteed with certified partners.',
-    features:[{icon:'📱',text:'Electronics recycling'},{icon:'🔋',text:'Battery disposal'},{icon:'🗑️',text:'Hazardous waste accepted'},{icon:'📜',text:'Certified disposal'}],
-    stats:[{label:'GP/Drop-off',value:'10'},{label:'Materials',value:'50+'},{label:'Centers',value:'120'}],
-    terms:'Earn 10 GP per recycling drop-off. Bonus 50 GP for electronics.',
-    website:'https://www.recyclehub.com' }
-};
-
-const investmentData = {
-  'solar': { icon:'☀️', title:'Solar Panel Installation', subtitle:'Renewable Energy Investment',
-    description:'Professional solar panel installation with 10% discount. Reduce your electricity bills by 50-90% and increase home value. Government subsidies available for up to 30% of system cost.',
-    features:[{icon:'💰',text:'ROI in 5-7 years typically'},{icon:'🏠',text:'Increases home value by ₹10L+'},{icon:'⚡',text:'Net metering credit available'},{icon:'🛡️',text:'25-year performance warranty'}],
-    stats:[{label:'GP Cost',value:'100'},{label:'You Save',value:'10%'},{label:'Avg. System',value:'₹1.5L'}],
-    terms:'Discount valid for 90 days. Minimum 3kW system. Installation within 60 days of purchase.', cost:100 },
-  'ev-charging': { icon:'⚡', title:'EV Charging Station', subtitle:'Home Charging Solution',
-    description:'Level 2 home EV charging station with 15% discount. Full charge overnight, 240V installation included. Smart app controls and energy monitoring.',
-    features:[{icon:'🔌',text:'7.2kW fast charging'},{icon:'📱',text:'WiFi-enabled smart controls'},{icon:'⚙️',text:'Professional installation'},{icon:'⚡',text:'0-100% in 6-8 hours'}],
-    stats:[{label:'GP Cost',value:'150'},{label:'You Save',value:'15%'},{label:'Install Time',value:'4 hrs'}],
-    terms:'Requires 240V circuit. Electrician installation included. 3-year warranty.', cost:150 },
-  'wind-energy': { icon:'🌊', title:'Wind Energy Subscription', subtitle:'100% Renewable Electricity',
-    description:'Switch to 100% wind-powered electricity with 20% off first year. No installation needed. Cancel anytime with no fees.',
-    features:[{icon:'💨',text:'100% wind-generated'},{icon:'📉',text:'20% off for 12 months'},{icon:'🌍',text:'Certified carbon neutral'},{icon:'📊',text:'Monthly impact reports'}],
-    stats:[{label:'GP Cost',value:'200'},{label:'You Save',value:'20%'},{label:'Contract',value:'12 mo'}],
-    terms:'12-month minimum term. Available in select states. Price lock guarantee.', cost:200 },
-  'green-bonds': { icon:'📈', title:'Green Bond Investment', subtitle:'Sustainable Finance',
-    description:'Invest in green bonds with +2% APY bonus. Support renewable energy, sustainable agriculture, and climate projects while earning competitive returns.',
-    features:[{icon:'💹',text:'Competitive returns + bonus'},{icon:'🌱',text:'Eco-certified projects only'},{icon:'🔒',text:'Principal protected'},{icon:'📈',text:'Quarterly dividends'}],
-    stats:[{label:'GP Cost',value:'300'},{label:'Bonus APY',value:'+2%'},{label:'Min. Invest',value:'₹80,000'}],
-    terms:'Minimum ₹80,000 investment. 2-year term. Bonus APY for first year only.', cost:300 },
-  'carbon-offset': { icon:'🌍', title:'Carbon Offset Credits', subtitle:'Neutralize Your Footprint',
-    description:'Purchase verified carbon offset credits to neutralize your emissions. Support reforestation, renewable energy, and conservation projects worldwide.',
-    features:[{icon:'🌳',text:'5 tons of CO₂ offset'},{icon:'✓',text:'Gold Standard certified'},{icon:'📍',text:'Project location tracking'},{icon:'📜',text:'Official certificate'}],
-    stats:[{label:'GP Cost',value:'80'},{label:'CO₂ Offset',value:'5 tons'},{label:'Projects',value:'20+'}],
-    terms:'Credits retired upon purchase. Certificate delivered via email. Valid internationally.', cost:80 }
-};
-
-// ══════════════════════════════════════
-// DETAIL MODAL FUNCTIONS
-// ══════════════════════════════════════
-function showRewardDetail(type, cost) {
-  const data = rewardData[type];
-  if (!data) return;
-  const modal = document.getElementById('detailModal');
-  document.getElementById('detailIcon').textContent = data.icon;
-  document.getElementById('detailTitle').textContent = data.title;
-  document.getElementById('detailSubtitle').textContent = data.subtitle;
-  document.getElementById('detailDescription').textContent = data.description;
-  document.getElementById('detailClaimedBadge').style.display = claimedRewards.has(type) ? 'block' : 'none';
-  document.getElementById('detailStatsSection').style.display = 'none';
-  const featuresSection = document.getElementById('detailFeaturesSection');
-  const featuresList = document.getElementById('detailFeatures');
-  featuresSection.style.display = 'block';
-  featuresList.innerHTML = data.features.map(f =>
-    `<div class="detail-feature"><div class="detail-feature-icon">${f.icon}</div><div class="detail-feature-text">${f.text}</div></div>`
-  ).join('');
-  document.getElementById('detailTermsSection').style.display = 'block';
-  document.getElementById('detailTerms').textContent = data.terms;
-  const isClaimed = claimedRewards.has(type);
-  const canAfford = greenPoints >= cost;
-  document.getElementById('detailActions').innerHTML = `
-    <div class="detail-btn secondary" onclick="closeDetailModal()">Close</div>
-    <div class="detail-btn primary ${isClaimed || !canAfford ? 'disabled' : ''}"
-         onclick="${isClaimed || !canAfford ? '' : `claimReward('${type}', ${cost})`}">
-      ${isClaimed ? '✓ Claimed' : (canAfford ? `Claim for ${cost} GP` : `Need ${cost - greenPoints} more GP`)}
-    </div>`;
-  modal.classList.add('open');
-}
-
-function showInvestmentDetail(type, cost) {
-  const data = investmentData[type];
-  if (!data) return;
-  const modal = document.getElementById('detailModal');
-  document.getElementById('detailIcon').textContent = data.icon;
-  document.getElementById('detailTitle').textContent = data.title;
-  document.getElementById('detailSubtitle').textContent = data.subtitle;
-  document.getElementById('detailDescription').textContent = data.description;
-  document.getElementById('detailClaimedBadge').style.display = claimedRewards.has(type) ? 'block' : 'none';
-  const statsSection = document.getElementById('detailStatsSection');
-  statsSection.style.display = 'grid';
-  statsSection.innerHTML = data.stats.map(s =>
-    `<div class="detail-stat"><span class="detail-stat-value">${s.value}</span><span class="detail-stat-label">${s.label}</span></div>`
-  ).join('');
-  const featuresSection = document.getElementById('detailFeaturesSection');
-  featuresSection.style.display = 'block';
-  document.getElementById('detailFeatures').innerHTML = data.features.map(f =>
-    `<div class="detail-feature"><div class="detail-feature-icon">${f.icon}</div><div class="detail-feature-text">${f.text}</div></div>`
-  ).join('');
-  document.getElementById('detailTermsSection').style.display = 'block';
-  document.getElementById('detailTerms').textContent = data.terms;
-  const isClaimed = claimedRewards.has(type);
-  const canAfford = greenPoints >= cost;
-  document.getElementById('detailActions').innerHTML = `
-    <div class="detail-btn secondary" onclick="closeDetailModal()">Close</div>
-    <div class="detail-btn primary ${isClaimed || !canAfford ? 'disabled' : ''}"
-         onclick="${isClaimed || !canAfford ? '' : `redeemInvestment('${type}', ${cost})`}">
-      ${isClaimed ? '✓ Redeemed' : (canAfford ? `Redeem for ${cost} GP` : `Need ${cost - greenPoints} more GP`)}
-    </div>`;
-  modal.classList.add('open');
-}
-
-function showMerchantDetail(type) {
-  const data = merchantData[type];
-  if (!data) return;
-  const modal = document.getElementById('detailModal');
-  document.getElementById('detailIcon').textContent = data.icon;
-  document.getElementById('detailTitle').textContent = data.name;
-  document.getElementById('detailSubtitle').textContent = data.category;
-  document.getElementById('detailDescription').textContent = data.description;
-  document.getElementById('detailClaimedBadge').style.display = 'none';
-  const statsSection = document.getElementById('detailStatsSection');
-  statsSection.style.display = 'grid';
-  statsSection.innerHTML = data.stats.map(s =>
-    `<div class="detail-stat"><span class="detail-stat-value">${s.value}</span><span class="detail-stat-label">${s.label}</span></div>`
-  ).join('');
-  const featuresSection = document.getElementById('detailFeaturesSection');
-  featuresSection.style.display = 'block';
-  document.getElementById('detailFeatures').innerHTML = data.features.map(f =>
-    `<div class="detail-feature"><div class="detail-feature-icon">${f.icon}</div><div class="detail-feature-text">${f.text}</div></div>`
-  ).join('');
-  document.getElementById('detailTermsSection').style.display = 'block';
-  document.getElementById('detailTerms').textContent = data.terms;
-  document.getElementById('detailActions').innerHTML = `
-    <div class="detail-btn secondary" onclick="closeDetailModal(); saveMerchant('${data.name}')">💚 Save</div>
-    <div class="detail-btn primary" onclick="closeDetailModal(); visitMerchant('${type}')">Visit Store</div>`;
-  modal.classList.add('open');
-}
-
-function closeDetailModal() {
-  document.getElementById('detailModal').classList.remove('open');
-}
-
-function claimReward(type, cost) {
-  if (claimedRewards.has(type)) { closeDetailModal(); showToast('Already Claimed', 'You have already claimed this reward!', '⚠️'); return; }
-  if (greenPoints >= cost) {
-    greenPoints -= cost;
-    claimedRewards.add(type);
-    document.getElementById('greenPoints').textContent = greenPoints;
-    document.getElementById('rewardsGP').textContent = greenPoints;
-    closeDetailModal();
-    saveState();
-    showToast('Reward Claimed!', `${rewardData[type]?.title} • Check your email for details`, '🎉', 4000);
-  } else {
-    closeDetailModal();
-    showToast('Not Enough Points', `You need ${cost - greenPoints} more GP to claim this reward`, '💰');
-  }
-}
-
-function redeemInvestment(type, cost) {
-  if (claimedRewards.has(type)) { closeDetailModal(); showToast('Already Redeemed', 'You have already redeemed this!', '⚠️'); return; }
-  if (greenPoints >= cost) {
-    greenPoints -= cost;
-    claimedRewards.add(type);
-    document.getElementById('greenPoints').textContent = greenPoints;
-    document.getElementById('rewardsGP').textContent = greenPoints;
-    closeDetailModal();
-    saveState();
-    showToast('Investment Redeemed!', `${investmentData[type]?.title} • Check your email for the discount code`, '🎉', 4000);
-  } else {
-    closeDetailModal();
-    showToast('Not Enough Points', `You need ${cost - greenPoints} more GP`, '💰');
-  }
-}
-
-function visitMerchant(type) {
-  const data = merchantData[type];
-  if (data && data.website) {
-    showToast('Opening Store', `Redirecting to ${data.name}…`, '🏪');
-    setTimeout(() => {
-      window.open(data.website, '_blank');
-    }, 500);
-  } else {
-    showToast('Coming Soon', 'Store website will be available soon', '🏪');
-  }
-}
-
-function saveMerchant(name) {
-  showToast('Saved!', `${name} added to your favourites 💚`, '⭐');
-}
-
-// Close detail modal on backdrop click
-document.getElementById('detailModal').addEventListener('click', function(e) {
-  if (e.target === this) closeDetailModal();
-});
-
-// Update rewardsGP when green points change
-function updateRewardsGP() {
-  const el = document.getElementById('rewardsGP');
-  if (el) el.textContent = greenPoints;
-}
-
-// ══════════════════════════════════════
-// PERSISTENT DATA STORE (localStorage)
-// ══════════════════════════════════════
-// saveState(), buildCSV(), downloadCSVFromStore() defined in STATE block above
-
-// ── Export Data button ──
-document.getElementById('exportDataBtn').onclick = function() {
-  saveState();
-  downloadCSVFromStore();
-  showToast('CSV Downloaded! 📊', 'carboncash_data.csv — always the same file', '✅', 3500);
-};
-
-// ── Restore UI on page load if saved data exists ──
-if (allTransactions.length > 0) {
-  // Defer until all functions are defined (end of script)
-  setTimeout(refreshUIFromState, 0);
-}
-
-// ══════════════════════════════════════
-// DELETE ALL DATA
-// ══════════════════════════════════════
-function showDeleteConfirm() {
-  document.getElementById('deleteModal').classList.add('open');
-}
-
-function closeDeleteModal() {
-  document.getElementById('deleteModal').classList.remove('open');
-}
-
-function deleteAllData() {
-  // Reset all state
-  allTransactions  = [];
-  greenPoints      = 0;
-  weeklyGoal       = 8.0;
-  goalStatus       = 'active';
-  transactionCount = 0;
-  claimedRewards   = new Set();
-
-  // Wipe localStorage completely
-  localStorage.removeItem(LS_KEY);
-  localStorage.removeItem(LS_KEY + '_csv');
-
-  // Reset GP displays
-  ['greenPoints','rewardsGP'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = '0';
-  });
-
-  // Reset goal display
-  const goalValEl = document.getElementById('goalValue');
-  if (goalValEl) goalValEl.textContent = '8.0';
-  const profileCarbon = document.getElementById('profileTotalCarbon');
-  if (profileCarbon) profileCarbon.textContent = '0';
-
-  // Clear transaction lists
-  ['homeTxnList','transactionsTxnList'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = '';
-  });
-
-  // Refresh all stat panels back to zero
-  updateWeeklyCarbon();
-  updateCategoryBreakdown();
-  updateWeeklyChart();
-  updateComparisonCard();
-  updateAchievements();
-
-  closeDeleteModal();
-  showToast('Data Deleted', 'All your data has been permanently erased', '🗑️', 3500);
-}
-
-// Wire up delete modal buttons
-document.getElementById('deleteCancelBtn').addEventListener('click', closeDeleteModal);
-document.getElementById('deleteConfirmBtn').addEventListener('click', deleteAllData);
-document.getElementById('deleteModal').addEventListener('click', function(e) {
-  if (e.target === this) closeDeleteModal();
-});
-
-</script>
 </body>
 </html>

@@ -1,0 +1,65 @@
+/* ══════════════════════════════════════
+   VARIABLES & BASE RESET
+══════════════════════════════════════ */
+:root {
+  --bg-deep:    #050e08;
+  --bg-card:    #0b1a0f;
+  --bg-glass:   rgba(14,30,18,0.88);
+  --green-glow: #22c55e;
+  --green-mid:  #16a34a;
+  --green-dark: #14532d;
+  --leaf-light: #4ade80;
+  --leaf-pale:  #86efac;
+  --gold:       #fbbf24;
+  --gold-dark:  #d97706;
+  --red:        #f87171;
+  --orange:     #fb923c;
+  --blue:       #38bdf8;
+  --text-pri:   #e8fced;
+  --text-muted: #6b9a7a;
+  --border:     rgba(34,197,94,0.13);
+  --r:          22px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg-deep);color:var(--text-pri);font-family:'DM Sans',sans-serif;width:100%;height:100%;overflow:hidden;}
+
+/* ── Ambient BG ── */
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 55% 45% at 20% -5%,rgba(22,163,74,.16) 0%,transparent 65%),
+  radial-gradient(ellipse 45% 55% at 80% 105%,rgba(20,83,45,.25) 0%,transparent 60%);
+  pointer-events:none;z-index:0;}
+
+/* ── Carbon particles floating ── */
+.carbon-field{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;}
+.carbon-particle{position:absolute;opacity:0;animation:floatCarbon linear infinite;}
+@keyframes floatCarbon{
+  0%  {transform:translateY(110vh) translateX(0) rotate(0deg) scale(.8);opacity:0;}
+  6%  {opacity:.3;}
+  90% {opacity:.15;}
+  100%{transform:translateY(-15vh) translateX(40px) rotate(380deg) scale(.5);opacity:0;}
+}
+
+/* ── App shell ── */
+.app{position:fixed;inset:0;z-index:2;max-width:430px;margin:0 auto;display:flex;flex-direction:column;box-shadow:0 0 60px rgba(0,0,0,.8);}
+
+/* ── Page system ── */
+.pages{flex:1;min-height:0;position:relative;overflow:hidden;}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding-bottom:90px;
+  opacity:0;transform:translateX(30px);pointer-events:none;-webkit-overflow-scrolling:touch;
+  transition:opacity .35s cubic-bezier(.4,0,.2,1),transform .35s cubic-bezier(.4,0,.2,1);}
+.page.active{opacity:1;transform:translateX(0);pointer-events:all;}
+
+/* ── Points animation ── */
+@keyframes pointsEarned{
+  0%{transform:translateY(0) scale(1);opacity:1;}
+  100%{transform:translateY(-100px) scale(1.5);opacity:0;}
+}
+.points-floating{position:fixed;font-size:24px;font-weight:800;color:var(--gold);
+  pointer-events:none;z-index:9999;
+  animation:pointsEarned 1.5s cubic-bezier(.4,0,.2,1) forwards;
+  filter:drop-shadow(0 0 12px rgba(251,191,36,.6));}
+
+/* ── Sections ── */
+.section-title{padding:24px 24px 12px;font-size:12px;text-transform:uppercase;
+  letter-spacing:1.2px;color:var(--text-muted);font-weight:500;}
